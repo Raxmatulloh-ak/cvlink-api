@@ -6,6 +6,8 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Enum\Theme;
 use App\Enum\UserStatus;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -25,7 +27,7 @@ class User
     private array $roles = [];
 
     #[ORM\Column(length: 15)]
-    private ?string $lacale = null;
+    private ?string $locale = null;
 
     #[ORM\Column(enumType: Theme::class)]
     private ?Theme $theme = null;
@@ -35,6 +37,17 @@ class User
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $password = null;
+
+    /**
+     * @var Collection<int, UserAuthIdentity>
+     */
+    #[ORM\OneToMany(targetEntity: UserAuthIdentity::class, mappedBy: 'owner', orphanRemoval: true)]
+    private Collection $userAuthIdentities;
+
+    public function __construct()
+    {
+        $this->userAuthIdentities = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -65,14 +78,14 @@ class User
         return $this;
     }
 
-    public function getLacale(): ?string
+    public function getLocale(): ?string
     {
-        return $this->lacale;
+        return $this->locale;
     }
 
-    public function setLacale(string $lacale): static
+    public function setLocale(string $locale): static
     {
-        $this->lacale = $lacale;
+        $this->locale = $locale;
 
         return $this;
     }
@@ -109,6 +122,36 @@ class User
     public function setPassword(?string $password): static
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserAuthIdentity>
+     */
+    public function getUserAuthIdentities(): Collection
+    {
+        return $this->userAuthIdentities;
+    }
+
+    public function addUserAuthIdentity(UserAuthIdentity $userAuthIdentity): static
+    {
+        if (!$this->userAuthIdentities->contains($userAuthIdentity)) {
+            $this->userAuthIdentities->add($userAuthIdentity);
+            $userAuthIdentity->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserAuthIdentity(UserAuthIdentity $userAuthIdentity): static
+    {
+        if ($this->userAuthIdentities->removeElement($userAuthIdentity)) {
+            // set the owning side to null (unless already changed)
+            if ($userAuthIdentity->getOwner() === $this) {
+                $userAuthIdentity->setOwner(null);
+            }
+        }
 
         return $this;
     }
