@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\AttributeCategoryRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AttributeCategoryRepository::class)]
@@ -26,6 +28,17 @@ class AttributeCategory
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    /**
+     * @var Collection<int, AttributeDefinition>
+     */
+    #[ORM\OneToMany(targetEntity: AttributeDefinition::class, mappedBy: 'category')]
+    private Collection $attributeDefinitions;
+
+    public function __construct()
+    {
+        $this->attributeDefinitions = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -76,6 +89,36 @@ class AttributeCategory
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AttributeDefinition>
+     */
+    public function getAttributeDefinitions(): Collection
+    {
+        return $this->attributeDefinitions;
+    }
+
+    public function addAttributeDefinition(AttributeDefinition $attributeDefinition): static
+    {
+        if (!$this->attributeDefinitions->contains($attributeDefinition)) {
+            $this->attributeDefinitions->add($attributeDefinition);
+            $attributeDefinition->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAttributeDefinition(AttributeDefinition $attributeDefinition): static
+    {
+        if ($this->attributeDefinitions->removeElement($attributeDefinition)) {
+            // set the owning side to null (unless already changed)
+            if ($attributeDefinition->getCategory() === $this) {
+                $attributeDefinition->setCategory(null);
+            }
+        }
 
         return $this;
     }
