@@ -5,6 +5,8 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\Enum\AttributeValueType;
 use App\Repository\AttributeDefinitionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -41,6 +43,17 @@ class AttributeDefinition
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    /**
+     * @var Collection<int, UserAttributeValue>
+     */
+    #[ORM\OneToMany(targetEntity: UserAttributeValue::class, mappedBy: 'attribute', orphanRemoval: true)]
+    private Collection $userAttributeValues;
+
+    public function __construct()
+    {
+        $this->userAttributeValues = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -139,6 +152,36 @@ class AttributeDefinition
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserAttributeValue>
+     */
+    public function getUserAttributeValues(): Collection
+    {
+        return $this->userAttributeValues;
+    }
+
+    public function addUserAttributeValue(UserAttributeValue $userAttributeValue): static
+    {
+        if (!$this->userAttributeValues->contains($userAttributeValue)) {
+            $this->userAttributeValues->add($userAttributeValue);
+            $userAttributeValue->setAttribute($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserAttributeValue(UserAttributeValue $userAttributeValue): static
+    {
+        if ($this->userAttributeValues->removeElement($userAttributeValue)) {
+            // set the owning side to null (unless already changed)
+            if ($userAttributeValue->getAttribute() === $this) {
+                $userAttributeValue->setAttribute(null);
+            }
+        }
 
         return $this;
     }

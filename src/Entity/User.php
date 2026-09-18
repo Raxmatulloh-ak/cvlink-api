@@ -41,12 +41,29 @@ class User
     /**
      * @var Collection<int, UserAuthIdentity>
      */
-    #[ORM\OneToMany(targetEntity: UserAuthIdentity::class, mappedBy: 'owner', orphanRemoval: true)]
+    #[ORM\OneToMany(
+        targetEntity: UserAuthIdentity::class,
+        mappedBy: 'owner',
+        cascade: ['persist'],
+        orphanRemoval: true
+    )]
     private Collection $userAuthIdentities;
+
+    /**
+     * @var Collection<int, UserAttributeValue>
+     */
+    #[ORM\OneToMany(
+        targetEntity: UserAttributeValue::class,
+        mappedBy: 'owner',
+        cascade: ['persist'],
+        orphanRemoval: true
+    )]
+    private Collection $userAttributeValues;
 
     public function __construct()
     {
         $this->userAuthIdentities = new ArrayCollection();
+        $this->userAttributeValues = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -150,6 +167,36 @@ class User
             // set the owning side to null (unless already changed)
             if ($userAuthIdentity->getOwner() === $this) {
                 $userAuthIdentity->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserAttributeValue>
+     */
+    public function getUserAttributeValues(): Collection
+    {
+        return $this->userAttributeValues;
+    }
+
+    public function addUserAttributeValue(UserAttributeValue $userAttributeValue): static
+    {
+        if (!$this->userAttributeValues->contains($userAttributeValue)) {
+            $this->userAttributeValues->add($userAttributeValue);
+            $userAttributeValue->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserAttributeValue(UserAttributeValue $userAttributeValue): static
+    {
+        if ($this->userAttributeValues->removeElement($userAttributeValue)) {
+            // set the owning side to null (unless already changed)
+            if ($userAttributeValue->getOwner() === $this) {
+                $userAttributeValue->setOwner(null);
             }
         }
 
