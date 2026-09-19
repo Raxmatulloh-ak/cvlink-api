@@ -66,11 +66,18 @@ class User
     #[ORM\OneToMany(targetEntity: Project::class, mappedBy: 'candidate', orphanRemoval: true)]
     private Collection $userProjects;
 
+    /**
+     * @var Collection<int, CV>
+     */
+    #[ORM\OneToMany(targetEntity: CV::class, mappedBy: 'candidate',  cascade: ['persist'], orphanRemoval: true)]
+    private Collection $cvs;
+
     public function __construct()
     {
         $this->userAuthIdentities = new ArrayCollection();
         $this->userAttributeValues = new ArrayCollection();
         $this->userProjects = new ArrayCollection();
+        $this->cvs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -234,6 +241,36 @@ class User
             // set the owning side to null (unless already changed)
             if ($userProject->getCandidate() === $this) {
                 $userProject->setCandidate(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CV>
+     */
+    public function getCvs(): Collection
+    {
+        return $this->cvs;
+    }
+
+    public function addCv(CV $cv): static
+    {
+        if (!$this->cvs->contains($cv)) {
+            $this->cvs->add($cv);
+            $cv->setCandidate($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCv(CV $cv): static
+    {
+        if ($this->cvs->removeElement($cv)) {
+            // set the owning side to null (unless already changed)
+            if ($cv->getCandidate() === $this) {
+                $cv->setCandidate(null);
             }
         }
 

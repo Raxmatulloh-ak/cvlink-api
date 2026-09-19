@@ -69,11 +69,18 @@ class Position
     )]
     private Collection $positionTags;
 
+    /**
+     * @var Collection<int, CV>
+     */
+    #[ORM\OneToMany(targetEntity: CV::class, mappedBy: 'position', orphanRemoval: true)]
+    private Collection $cvs;
+
     public function __construct()
     {
         $this->positionAttributes = new ArrayCollection();
         $this->accessRules = new ArrayCollection();
         $this->positionTags = new ArrayCollection();
+        $this->cvs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -261,6 +268,36 @@ class Position
             // set the owning side to null (unless already changed)
             if ($positionTag->getPosition() === $this) {
                 $positionTag->setPosition(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CV>
+     */
+    public function getCvs(): Collection
+    {
+        return $this->cvs;
+    }
+
+    public function addCv(CV $cv): static
+    {
+        if (!$this->cvs->contains($cv)) {
+            $this->cvs->add($cv);
+            $cv->setPosition($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCv(CV $cv): static
+    {
+        if ($this->cvs->removeElement($cv)) {
+            // set the owning side to null (unless already changed)
+            if ($cv->getPosition() === $this) {
+                $cv->setPosition(null);
             }
         }
 
