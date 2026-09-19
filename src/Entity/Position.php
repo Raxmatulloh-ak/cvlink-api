@@ -75,12 +75,19 @@ class Position
     #[ORM\OneToMany(targetEntity: CV::class, mappedBy: 'position', orphanRemoval: true)]
     private Collection $cvs;
 
+    /**
+     * @var Collection<int, Discussion>
+     */
+    #[ORM\OneToMany(targetEntity: Discussion::class, mappedBy: 'position', orphanRemoval: true)]
+    private Collection $discussions;
+
     public function __construct()
     {
         $this->positionAttributes = new ArrayCollection();
         $this->accessRules = new ArrayCollection();
         $this->positionTags = new ArrayCollection();
         $this->cvs = new ArrayCollection();
+        $this->discussions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -298,6 +305,36 @@ class Position
             // set the owning side to null (unless already changed)
             if ($cv->getPosition() === $this) {
                 $cv->setPosition(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Discussion>
+     */
+    public function getDiscussions(): Collection
+    {
+        return $this->discussions;
+    }
+
+    public function addDiscussion(Discussion $discussion): static
+    {
+        if (!$this->discussions->contains($discussion)) {
+            $this->discussions->add($discussion);
+            $discussion->setPosition($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDiscussion(Discussion $discussion): static
+    {
+        if ($this->discussions->removeElement($discussion)) {
+            // set the owning side to null (unless already changed)
+            if ($discussion->getPosition() === $this) {
+                $discussion->setPosition(null);
             }
         }
 
