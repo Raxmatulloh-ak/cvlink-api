@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ProjectRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -43,6 +45,22 @@ class Project
 
     #[ORM\ManyToOne]
     private ?User $updatedBy = null;
+
+    /**
+     * @var Collection<int, ProjectTag>
+     */
+    #[ORM\OneToMany(
+        targetEntity: ProjectTag::class,
+        mappedBy: 'project',
+        cascade: ['persist'],
+        orphanRemoval: true
+    )]
+    private Collection $projectTags;
+
+    public function __construct()
+    {
+        $this->projectTags = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -153,6 +171,36 @@ class Project
     public function setUpdatedBy(?User $updatedBy): static
     {
         $this->updatedBy = $updatedBy;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProjectTag>
+     */
+    public function getProjectTags(): Collection
+    {
+        return $this->projectTags;
+    }
+
+    public function addProjectTag(ProjectTag $projectTag): static
+    {
+        if (!$this->projectTags->contains($projectTag)) {
+            $this->projectTags->add($projectTag);
+            $projectTag->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProjectTag(ProjectTag $projectTag): static
+    {
+        if ($this->projectTags->removeElement($projectTag)) {
+            // set the owning side to null (unless already changed)
+            if ($projectTag->getProject() === $this) {
+                $projectTag->setProject(null);
+            }
+        }
 
         return $this;
     }

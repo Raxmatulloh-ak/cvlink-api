@@ -5,22 +5,22 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use App\Repository\PositionTagRepository;
+use App\Repository\ProjectTagRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: PositionTagRepository::class)]
-#[ORM\UniqueConstraint(name: 'uniq_tag_position', columns: ['position_id', 'tag_id'])]
+#[ORM\Entity(repositoryClass: ProjectTagRepository::class)]
+#[ORM\UniqueConstraint(name: 'uniq_tag_project', columns: ['project_id', 'tag_id'])]
 #[ApiResource]
-class PositionTag
+class ProjectTag
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'positionTags')]
+    #[ORM\ManyToOne(inversedBy: 'projectTags')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private ?Position $position = null;
+    private ?Project $project = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
@@ -31,14 +31,14 @@ class PositionTag
         return $this->id;
     }
 
-    public function getPosition(): ?Position
+    public function getProject(): ?Project
     {
-        return $this->position;
+        return $this->project;
     }
 
-    public function setPosition(?Position $position): static
+    public function setProject(?Project $project): static
     {
-        $this->position = $position;
+        $this->project = $project;
 
         return $this;
     }
