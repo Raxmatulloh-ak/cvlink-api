@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Enum\PositionAccessType;
 use App\Repository\PositionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -38,6 +40,24 @@ class Position
 
     #[ORM\ManyToOne]
     private ?User $updatedBy = null;
+
+    /**
+     * @var Collection<int, PositionAttribute>
+     */
+    #[ORM\OneToMany(targetEntity: PositionAttribute::class, mappedBy: 'position', orphanRemoval: true)]
+    private Collection $positionAttributes;
+
+    /**
+     * @var Collection<int, PositionAccessRule>
+     */
+    #[ORM\OneToMany(targetEntity: PositionAccessRule::class, mappedBy: 'position', orphanRemoval: true)]
+    private Collection $accessRules;
+
+    public function __construct()
+    {
+        $this->positionAttributes = new ArrayCollection();
+        $this->accessRules = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -136,6 +156,66 @@ class Position
     public function setUpdatedBy(?User $updatedBy): static
     {
         $this->updatedBy = $updatedBy;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PositionAttribute>
+     */
+    public function getPositionAttributes(): Collection
+    {
+        return $this->positionAttributes;
+    }
+
+    public function addPositionAttribute(PositionAttribute $positionAttribute): static
+    {
+        if (!$this->positionAttributes->contains($positionAttribute)) {
+            $this->positionAttributes->add($positionAttribute);
+            $positionAttribute->setPosition($this);
+        }
+
+        return $this;
+    }
+
+    public function removePositionAttribute(PositionAttribute $positionAttribute): static
+    {
+        if ($this->positionAttributes->removeElement($positionAttribute)) {
+            // set the owning side to null (unless already changed)
+            if ($positionAttribute->getPosition() === $this) {
+                $positionAttribute->setPosition(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PositionAccessRule>
+     */
+    public function getAccessRules(): Collection
+    {
+        return $this->accessRules;
+    }
+
+    public function addAccessRule(PositionAccessRule $accessRule): static
+    {
+        if (!$this->accessRules->contains($accessRule)) {
+            $this->accessRules->add($accessRule);
+            $accessRule->setPosition($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAccessRule(PositionAccessRule $accessRule): static
+    {
+        if ($this->accessRules->removeElement($accessRule)) {
+            // set the owning side to null (unless already changed)
+            if ($accessRule->getPosition() === $this) {
+                $accessRule->setPosition(null);
+            }
+        }
 
         return $this;
     }
