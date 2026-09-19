@@ -50,13 +50,30 @@ class Position
     /**
      * @var Collection<int, PositionAccessRule>
      */
-    #[ORM\OneToMany(targetEntity: PositionAccessRule::class, mappedBy: 'position', orphanRemoval: true)]
+    #[ORM\OneToMany(
+        targetEntity: PositionAccessRule::class,
+        mappedBy: 'position',
+        cascade: ['persist'],
+        orphanRemoval: true
+    )]
     private Collection $accessRules;
+
+    /**
+     * @var Collection<int, PositionTag>
+     */
+    #[ORM\OneToMany(
+        targetEntity: PositionTag::class,
+        mappedBy: 'position',
+        cascade: ['persist'],
+        orphanRemoval: true
+    )]
+    private Collection $positionTags;
 
     public function __construct()
     {
         $this->positionAttributes = new ArrayCollection();
         $this->accessRules = new ArrayCollection();
+        $this->positionTags = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -214,6 +231,36 @@ class Position
             // set the owning side to null (unless already changed)
             if ($accessRule->getPosition() === $this) {
                 $accessRule->setPosition(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PositionTag>
+     */
+    public function getPositionTags(): Collection
+    {
+        return $this->positionTags;
+    }
+
+    public function addPositionTag(PositionTag $positionTag): static
+    {
+        if (!$this->positionTags->contains($positionTag)) {
+            $this->positionTags->add($positionTag);
+            $positionTag->setPosition($this);
+        }
+
+        return $this;
+    }
+
+    public function removePositionTag(PositionTag $positionTag): static
+    {
+        if ($this->positionTags->removeElement($positionTag)) {
+            // set the owning side to null (unless already changed)
+            if ($positionTag->getPosition() === $this) {
+                $positionTag->setPosition(null);
             }
         }
 

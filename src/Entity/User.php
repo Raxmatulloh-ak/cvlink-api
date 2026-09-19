@@ -60,10 +60,17 @@ class User
     )]
     private Collection $userAttributeValues;
 
+    /**
+     * @var Collection<int, Project>
+     */
+    #[ORM\OneToMany(targetEntity: Project::class, mappedBy: 'candidate', orphanRemoval: true)]
+    private Collection $userProjects;
+
     public function __construct()
     {
         $this->userAuthIdentities = new ArrayCollection();
         $this->userAttributeValues = new ArrayCollection();
+        $this->userProjects = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -197,6 +204,36 @@ class User
             // set the owning side to null (unless already changed)
             if ($userAttributeValue->getOwner() === $this) {
                 $userAttributeValue->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Project>
+     */
+    public function getUserProjects(): Collection
+    {
+        return $this->userProjects;
+    }
+
+    public function addUserProject(Project $userProject): static
+    {
+        if (!$this->userProjects->contains($userProject)) {
+            $this->userProjects->add($userProject);
+            $userProject->setCandidate($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserProject(Project $userProject): static
+    {
+        if ($this->userProjects->removeElement($userProject)) {
+            // set the owning side to null (unless already changed)
+            if ($userProject->getCandidate() === $this) {
+                $userProject->setCandidate(null);
             }
         }
 
