@@ -7,8 +7,11 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Component\AttributeDefinition\Dto\AttributeDefinitionUpdateDto;
 use App\Controller\AttributeDefinition\AttributeDefinitionCreateAction;
+use App\Controller\AttributeDefinition\AttributeDefinitionUpdateAction;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
 use App\Entity\Interfaces\UpdatedAtSettableInterface;
 use App\Entity\Traits\CreatedAtAccessorsTrait;
@@ -31,6 +34,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             controller: AttributeDefinitionCreateAction::class,
             security: "is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
         ),
+        new Patch(
+            controller: AttributeDefinitionUpdateAction::class,
+            denormalizationContext: ['groups' => ['attribute:update']],
+            security: "is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
+            input: AttributeDefinitionUpdateDto::class,
+            write: false,
+        ),
     ],
     normalizationContext: ['groups' => ['attribute:read']],
     denormalizationContext: ['groups' => ['attribute:write']],
@@ -48,16 +58,16 @@ class AttributeDefinition implements CreatedAtSettableInterface, UpdatedAtSettab
     #[ORM\ManyToOne(inversedBy: 'attributeDefinitions')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
-    #[Groups(['attribute:read', 'attribute:write'])]
+    #[Groups(['attribute:read', 'attribute:write', 'attribute:update'])]
     private ?AttributeCategory $category = null;
 
     #[ORM\Column(length: 255, unique: true)]
     #[Assert\NotBlank]
-    #[Groups(['attribute:read', 'attribute:write'])]
+    #[Groups(['attribute:read', 'attribute:write', 'attribute:update'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['attribute:read', 'attribute:write'])]
+    #[Groups(['attribute:read', 'attribute:write', 'attribute:update'])]
     private ?string $description = null;
 
     #[ORM\Column(enumType: AttributeValueType::class)]

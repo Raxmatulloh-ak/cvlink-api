@@ -6,9 +6,9 @@ namespace App\Controller\AttributeDefinition;
 
 use App\Component\AttributeDefinition\AttributeDefinitionFactory;
 use App\Component\AttributeDefinition\AttributeDefinitionManager;
+use App\Controller\Base\AbstractController;
 use App\Entity\AttributeDefinition;
 use App\Repository\AttributeDefinitionRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AttributeDefinitionCreateAction extends AbstractController
