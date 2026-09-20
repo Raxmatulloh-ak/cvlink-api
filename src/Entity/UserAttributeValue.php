@@ -3,14 +3,20 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use App\Entity\Interfaces\CreatedAtSettableInterface;
+use App\Entity\Interfaces\UpdatedAtSettableInterface;
+use App\Entity\Traits\CreatedAtAccessorsTrait;
+use App\Entity\Traits\UpdatedAtAccessorsTrait;
 use App\Repository\UserAttributeValueRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserAttributeValueRepository::class)]
 #[ApiResource]
-class UserAttributeValue
+class UserAttributeValue implements CreatedAtSettableInterface, UpdatedAtSettableInterface
 {
+    use CreatedAtAccessorsTrait, UpdatedAtAccessorsTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -31,7 +37,7 @@ class UserAttributeValue
     private ?string $imageReference = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $nemericValue = null;
+    private ?int $numericValue = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $dateValue = null;
@@ -43,13 +49,13 @@ class UserAttributeValue
     private ?\DateTimeImmutable $periodEnd = null;
 
     #[ORM\Column(nullable: true)]
-    private ?bool $boolenValue = null;
+    private ?bool $booleanValue = null;
 
     #[ORM\ManyToOne]
     private ?AttributeOption $option = null;
 
     #[ORM\Column]
-    private ?int $version = null;
+    private ?int $version = 1;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -110,14 +116,14 @@ class UserAttributeValue
         return $this;
     }
 
-    public function getNemericValue(): ?int
+    public function getNumericValue(): ?int
     {
-        return $this->nemericValue;
+        return $this->numericValue;
     }
 
-    public function setNemericValue(?int $nemericValue): static
+    public function setNumericValue(?int $numericValue): static
     {
-        $this->nemericValue = $nemericValue;
+        $this->numericValue = $numericValue;
 
         return $this;
     }
@@ -158,14 +164,14 @@ class UserAttributeValue
         return $this;
     }
 
-    public function isBoolenValue(): ?bool
+    public function isBooleanValue(): ?bool
     {
-        return $this->boolenValue;
+        return $this->booleanValue;
     }
 
-    public function setBoolenValue(?bool $boolenValue): static
+    public function setBooleanValue(?bool $booleanValue): static
     {
-        $this->boolenValue = $boolenValue;
+        $this->booleanValue = $booleanValue;
 
         return $this;
     }
@@ -190,30 +196,6 @@ class UserAttributeValue
     public function setVersion(int $version): static
     {
         $this->version = $version;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
 
         return $this;
     }

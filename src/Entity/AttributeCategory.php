@@ -3,6 +3,10 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use App\Entity\Interfaces\CreatedAtSettableInterface;
+use App\Entity\Interfaces\UpdatedAtSettableInterface;
+use App\Entity\Traits\CreatedAtAccessorsTrait;
+use App\Entity\Traits\UpdatedAtAccessorsTrait;
 use App\Repository\AttributeCategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,8 +14,11 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AttributeCategoryRepository::class)]
 #[ApiResource]
-class AttributeCategory
+class AttributeCategory implements CreatedAtSettableInterface, UpdatedAtSettableInterface
 {
+    use CreatedAtAccessorsTrait,
+        UpdatedAtAccessorsTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -65,30 +72,6 @@ class AttributeCategory
     public function setDisplayOrder(int $displayOrder): static
     {
         $this->displayOrder = $displayOrder;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
 
         return $this;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
@@ -44,7 +46,7 @@ class PositionAccessRule
     private ?\DateTimeImmutable $periodEndOperand = null;
 
     #[ORM\Column(nullable: true)]
-    private ?bool $boolenOperand = null;
+    private ?bool $booleanOperand = null;
 
     #[ORM\ManyToOne]
     private ?AttributeOption $option = null;
@@ -150,14 +152,14 @@ class PositionAccessRule
         return $this;
     }
 
-    public function isBoolenOperand(): ?bool
+    public function isBooleanOperand(): ?bool
     {
-        return $this->boolenOperand;
+        return $this->booleanOperand;
     }
 
-    public function setBoolenOperand(?bool $boolenOperand): static
+    public function setBooleanOperand(?bool $booleanOperand): static
     {
-        $this->boolenOperand = $boolenOperand;
+        $this->booleanOperand = $booleanOperand;
 
         return $this;
     }

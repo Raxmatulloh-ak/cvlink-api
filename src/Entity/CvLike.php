@@ -3,13 +3,17 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use App\Entity\Interfaces\CreatedAtSettableInterface;
+use App\Entity\Traits\CreatedAtAccessorsTrait;
 use App\Repository\CvLikeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CvLikeRepository::class)]
 #[ApiResource]
-class CvLike
+class CvLike implements CreatedAtSettableInterface
 {
+    use CreatedAtAccessorsTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -51,18 +55,6 @@ class CvLike
     public function setRecruiter(?User $recruiter): static
     {
         $this->recruiter = $recruiter;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
 
         return $this;
     }

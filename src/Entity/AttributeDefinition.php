@@ -3,6 +3,10 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use App\Entity\Interfaces\CreatedAtSettableInterface;
+use App\Entity\Interfaces\UpdatedAtSettableInterface;
+use App\Entity\Traits\CreatedAtAccessorsTrait;
+use App\Entity\Traits\UpdatedAtAccessorsTrait;
 use App\Enum\AttributeValueType;
 use App\Repository\AttributeDefinitionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -12,8 +16,11 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AttributeDefinitionRepository::class)]
 #[ApiResource]
-class AttributeDefinition
+class AttributeDefinition implements CreatedAtSettableInterface, UpdatedAtSettableInterface
 {
+    use CreatedAtAccessorsTrait,
+        UpdatedAtAccessorsTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -23,20 +30,20 @@ class AttributeDefinition
     #[ORM\JoinColumn(nullable: false)]
     private ?AttributeCategory $category = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
     #[ORM\Column(enumType: AttributeValueType::class)]
     private ?AttributeValueType $valueType = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $bultinKey = null;
+    private ?string $builtinKey = null;
 
     #[ORM\Column]
-    private ?int $version = null;
+    private ?int $version = 1;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -47,7 +54,7 @@ class AttributeDefinition
     /**
      * @var Collection<int, UserAttributeValue>
      */
-    #[ORM\OneToMany(targetEntity: UserAttributeValue::class, mappedBy: 'attribute', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: UserAttributeValue::class, mappedBy: 'attribute')]
     private Collection $userAttributeValues;
 
     public function __construct()
@@ -108,14 +115,14 @@ class AttributeDefinition
         return $this;
     }
 
-    public function getBultinKey(): ?string
+    public function getBuiltinKey(): ?string
     {
-        return $this->bultinKey;
+        return $this->builtinKey;
     }
 
-    public function setBultinKey(string $bultinKey): static
+    public function setBuiltinKey(string $builtinKey): static
     {
-        $this->bultinKey = $bultinKey;
+        $this->builtinKey = $builtinKey;
 
         return $this;
     }
@@ -123,37 +130,6 @@ class AttributeDefinition
     public function getVersion(): ?int
     {
         return $this->version;
-    }
-
-    public function setVersion(int $version): static
-    {
-        $this->version = $version;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
     }
 
     /**

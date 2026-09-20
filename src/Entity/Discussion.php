@@ -3,14 +3,18 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use App\Entity\Interfaces\CreatedAtSettableInterface;
+use App\Entity\Traits\CreatedAtAccessorsTrait;
 use App\Repository\DiscussionRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DiscussionRepository::class)]
 #[ApiResource]
-class Discussion
+class Discussion implements CreatedAtSettableInterface
 {
+    use CreatedAtAccessorsTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -67,18 +71,6 @@ class Discussion
     public function setMessage(string $message): static
     {
         $this->message = $message;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
 
         return $this;
     }

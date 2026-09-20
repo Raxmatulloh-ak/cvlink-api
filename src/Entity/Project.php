@@ -1,8 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use App\Entity\Interfaces\CreatedAtSettableInterface;
+use App\Entity\Interfaces\UpdatedAtSettableInterface;
+use App\Entity\Traits\CreatedAtAccessorsTrait;
+use App\Entity\Traits\UpdatedAtAccessorsTrait;
 use App\Repository\ProjectRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,8 +17,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 #[ApiResource]
-class Project
+class Project implements CreatedAtSettableInterface, UpdatedAtSettableInterface
 {
+    use CreatedAtAccessorsTrait, UpdatedAtAccessorsTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -35,7 +43,7 @@ class Project
     private ?string $description = null;
 
     #[ORM\Column]
-    private ?int $version = null;
+    private ?int $version = 1;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -135,30 +143,6 @@ class Project
     public function setVersion(int $version): static
     {
         $this->version = $version;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
 
         return $this;
     }

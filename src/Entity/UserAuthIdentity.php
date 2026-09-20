@@ -3,14 +3,18 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use App\Entity\Interfaces\CreatedAtSettableInterface;
+use App\Entity\Traits\CreatedAtAccessorsTrait;
 use App\Repository\UserAuthIdentityRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserAuthIdentityRepository::class)]
 #[ApiResource]
 #[ORM\UniqueConstraint(name: 'UNIQ_PROVIDER_SUBJECT', columns: ['provider', 'provider_subject'])]
-class UserAuthIdentity
+class UserAuthIdentity implements CreatedAtSettableInterface
 {
+    use CreatedAtAccessorsTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -66,18 +70,6 @@ class UserAuthIdentity
     public function setProviderSubject(string $providerSubject): static
     {
         $this->providerSubject = $providerSubject;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
 
         return $this;
     }
