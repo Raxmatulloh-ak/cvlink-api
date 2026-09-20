@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use App\Component\User\Dtos\TokenDto;
+use App\Controller\User\UserAboutMeAction;
 use App\Controller\User\UserAuthAction;
 use App\Controller\User\UserCreateAction;
 use App\Enum\Theme;
@@ -39,6 +40,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             output: TokenDto::class,
             write: false,
             name: 'userAuth',
+        ),
+        new Post(
+            uriTemplate: '/users/about_me',
+            controller: UserAboutMeAction::class,
+            input: false,
+            write: false,
+            name: 'aboutMe',
         ),
         New Delete(),
     ],
@@ -70,11 +78,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?Theme $theme = null;
 
     #[ORM\Column(length: 255, unique: true)]
+    #[Assert\NotBlank]
     #[Assert\Email]
     #[Groups(['user:read', 'user:write'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank]
     #[Assert\Length(min: 6, minMessage: 'Password must be at least {{ limit }} characters long')]
     #[Groups(['user:write'])]
     private ?string $password = null;
