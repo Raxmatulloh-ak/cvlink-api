@@ -5,6 +5,13 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use App\Component\User\Dtos\TokenDto;
+use App\Controller\User\UserAuthAction;
+use App\Controller\User\UserCreateAction;
 use App\Enum\Theme;
 use App\Enum\UserStatus;
 use App\Repository\UserRepository;
@@ -13,33 +20,63 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-#[ApiResource]
+#[ApiResource(
+    operations:[
+        new GetCollection(),
+        new Get(),
+        New Post(
+            controller: UserCreateAction::class,
+            write: false,
+        ),
+        new Post(
+            uriTemplate: '/users/auth',
+            controller: UserAuthAction::class,
+            output: TokenDto::class,
+            write: false,
+            name: 'userAuth',
+        ),
+        New Delete(),
+    ],
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:write']],
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(enumType: UserStatus::class)]
+    #[Groups(['user:read'])]
     private ?UserStatus $status = null;
 
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private array $roles = [];
 
     #[ORM\Column(length: 15)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $locale = null;
 
     #[ORM\Column(enumType: Theme::class)]
+    #[Groups(['user:read', 'user:write'])]
     private ?Theme $theme = null;
 
     #[ORM\Column(length: 255, unique: true)]
+    #[Assert\Email]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(min: 6, minMessage: 'Password must be at least {{ limit }} characters long')]
+    #[Groups(['user:write'])]
     private ?string $password = null;
 
     /**
