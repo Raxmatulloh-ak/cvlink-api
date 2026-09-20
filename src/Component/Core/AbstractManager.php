@@ -29,6 +29,15 @@ abstract class AbstractManager
         }
     }
 
+    public function remove(object $entity, bool $needToFlush = false): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($needToFlush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
     protected function getEntityManager(): EntityManagerInterface
     {
         return $this->entityManager;

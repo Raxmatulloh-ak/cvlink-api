@@ -16,6 +16,11 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
         parent::__construct($registry, AttributeDefinition::class);
     }
 
+    public function findOneByName(string $name): ?AttributeDefinition
+    {
+        return $this->findOneBy(['name' => $name]);
+    }
+
 //    /**
 //     * @return AttributeDefinition[] Returns an array of AttributeDefinition objects
 //     */
