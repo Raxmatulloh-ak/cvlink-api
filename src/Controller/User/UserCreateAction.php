@@ -6,13 +6,14 @@ namespace App\Controller\User;
 
 use App\Component\User\UserFactory;
 use App\Component\User\UserManager;
+use App\Controller\Base\AbstractController;
 use App\Entity\User;
 use App\Enum\Theme;
 use App\Enum\UserStatus;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class UserCreateAction
+class UserCreateAction extends AbstractController
 {
     public function __invoke(
         User $data,
@@ -20,6 +21,7 @@ class UserCreateAction
         UserManager $userManager,
         UserRepository $userRepository,
     ): User {
+        $this->validate($data);
         $email = strtolower(trim((string) $data->getEmail()));
 
         if ($userRepository->findOneByEmail($email)) {

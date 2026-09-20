@@ -6,12 +6,13 @@ namespace App\Controller\User;
 
 use App\Component\User\Dtos\TokenDto;
 use App\Component\User\TokenCreator;
+use App\Controller\Base\AbstractController;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class UserAuthAction
+class UserAuthAction extends AbstractController
 {
     public function __invoke(
         User $data,
@@ -20,9 +21,8 @@ class UserAuthAction
         TokenCreator $tokenCreator,
     ): TokenDto {
         $user = $userRepository->findOneByEmail(strtolower(trim((string)$data->getEmail())));
-        $hashPassword = $passwordHasher->isPasswordValid($user, (string)$data->getPassword());
 
-        if ($user === null || !$hashPassword) {
+        if ($user === null || !$passwordHasher->isPasswordValid($user, (string)$data->getPassword())) {
             throw new UnauthorizedHttpException('Bearer', 'Invalid credentials',);
         }
 
