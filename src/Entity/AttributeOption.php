@@ -16,7 +16,7 @@ class AttributeOption
     private ?int $id = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?AttributeDefinition $attribute = null;
 
     #[ORM\Column(length: 255)]

@@ -17,7 +17,7 @@ class AttributeOptionRepository extends ServiceEntityRepository
     }
 
 //    /**
-//     * @return AttributeOption[] Returns an array of AttributeOption objects
+//     * @return AttributeOptionFactory[] Returns an array of AttributeOptionFactory objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -31,7 +31,7 @@ class AttributeOptionRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?AttributeOption
+//    public function findOneBySomeField($value): ?AttributeOptionFactory
 //    {
 //        return $this->createQueryBuilder('a')
 //            ->andWhere('a.exampleField = :val')
