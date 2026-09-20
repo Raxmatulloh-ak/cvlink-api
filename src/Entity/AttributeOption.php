@@ -5,14 +5,20 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\AttributeOptionRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AttributeOptionRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['attribute_option:read']],
+    denormalizationContext: ['groups' => ['attribute_option:write']],
+)]
 class AttributeOption
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['attribute_option:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne]
@@ -20,9 +26,13 @@ class AttributeOption
     private ?AttributeDefinition $attribute = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 255)]
+    #[Groups(['attribute_option:read', 'attribute_option:write'])]
     private ?string $label = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['attribute_option:read', 'attribute_option:write'])]
     private ?int $displayOrder = null;
 
     public function getId(): ?int

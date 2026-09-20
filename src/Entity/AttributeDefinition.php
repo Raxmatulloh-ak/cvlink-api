@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Component\AttributeDefinition\Dto\AttributeDefinitionUpdateDto;
 use App\Controller\AttributeDefinition\AttributeDefinitionCreateAction;
+use App\Controller\AttributeDefinition\AttributeDefinitionDeleteAction;
 use App\Controller\AttributeDefinition\AttributeDefinitionUpdateAction;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
 use App\Entity\Interfaces\UpdatedAtSettableInterface;
@@ -39,6 +41,11 @@ use Symfony\Component\Validator\Constraints as Assert;
             denormalizationContext: ['groups' => ['attribute:update']],
             security: "is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
             input: AttributeDefinitionUpdateDto::class,
+            write: false,
+        ),
+        new Delete(
+            controller: AttributeDefinitionDeleteAction::class,
+            security: "is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
             write: false,
         ),
     ],
@@ -98,9 +105,22 @@ class AttributeDefinition implements CreatedAtSettableInterface, UpdatedAtSettab
     #[Groups(['attribute:read'])]
     private Collection $userAttributeValues;
 
+    /**
+     * @var Collection<int, AttributeOption>
+     */
+    #[ORM\OneToMany(
+        targetEntity: AttributeOption::class,
+        mappedBy: 'attribute',
+        cascade: ['persist'],
+        orphanRemoval: true,
+    )]
+    #[Groups(['attribute:read', 'attribute:write'])]
+    private Collection $options;
+
     public function __construct()
     {
         $this->userAttributeValues = new ArrayCollection();
+        $this->options = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -197,6 +217,35 @@ class AttributeDefinition implements CreatedAtSettableInterface, UpdatedAtSettab
             // set the owning side to null (unless already changed)
             if ($userAttributeValue->getAttribute() === $this) {
                 $userAttributeValue->setAttribute(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AttributeOption>
+     */
+    public function getOptions(): Collection
+    {
+        return $this->options;
+    }
+
+    public function addOption(AttributeOption $option): static
+    {
+        if (!$this->options->contains($option)) {
+            $this->options->add($option);
+            $option->setAttribute($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOption(AttributeOption $option): static
+    {
+        if ($this->options->removeElement($option)) {
+            if ($option->getAttribute() === $this) {
+                $option->setAttribute(null);
             }
         }
 
