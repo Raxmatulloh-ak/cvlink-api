@@ -11,6 +11,7 @@ use App\Enum\CvStatus;
 use App\Repository\CVRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CVRepository::class)]
@@ -35,7 +36,8 @@ class CV implements CreatedAtSettableInterface, UpdatedAtSettableInterface
     #[ORM\Column(enumType: CvStatus::class)]
     private ?CvStatus $status = null;
 
-    #[ORM\Column]
+    #[ORM\Version]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $version = 1;
 
     #[ORM\Column]

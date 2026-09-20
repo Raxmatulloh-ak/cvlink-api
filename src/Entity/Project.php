@@ -42,7 +42,8 @@ class Project implements CreatedAtSettableInterface, UpdatedAtSettableInterface
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column]
+    #[ORM\Version]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $version = 1;
 
     #[ORM\Column]

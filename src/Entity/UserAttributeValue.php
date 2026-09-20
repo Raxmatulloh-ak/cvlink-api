@@ -54,7 +54,8 @@ class UserAttributeValue implements CreatedAtSettableInterface, UpdatedAtSettabl
     #[ORM\ManyToOne]
     private ?AttributeOption $option = null;
 
-    #[ORM\Column]
+    #[ORM\Version]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $version = 1;
 
     #[ORM\Column]

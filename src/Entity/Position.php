@@ -35,7 +35,8 @@ class Position implements CreatedAtSettableInterface, UpdatedAtSettableInterface
     #[ORM\Column]
     private ?int $maxProjects = null;
 
-    #[ORM\Column]
+    #[ORM\Version]
+    #[ORM\Column(type: Types::INTEGER)]
     private ?int $version = 1;
 
     #[ORM\Column]

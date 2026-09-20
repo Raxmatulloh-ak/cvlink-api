@@ -62,7 +62,7 @@ class AttributeDefinition implements CreatedAtSettableInterface, UpdatedAtSettab
 
     #[ORM\Column(enumType: AttributeValueType::class)]
     #[Assert\NotNull]
-    #[Groups(['attribute:read', 'attribute:write'])]
+    #[Groups(['attribute:write'])]
     private ?AttributeValueType $valueType = null;
 
     #[ORM\Column(length: 255, unique: true, nullable: true)]
