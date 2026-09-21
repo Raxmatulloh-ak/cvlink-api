@@ -11,6 +11,6 @@ class TagFactory
     public function create(string $name): Tag
     {
         return new Tag()
-            ->setName($name);
+            ->setName(strtolower(trim($name)));
     }
 }
