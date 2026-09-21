@@ -23,7 +23,7 @@ class AttributeDefinitionDeleteAction extends AbstractController
             throw new BadRequestHttpException('Built-in attribute cannot be deleted');
         }
 
-        if (!$request->query->has('version')) {
+        if ($request->query->has('version') === false) {
             throw new BadRequestHttpException('Version is required');
         }
 
@@ -33,7 +33,7 @@ class AttributeDefinitionDeleteAction extends AbstractController
             throw new ConflictHttpException('Attribute was modified by another user');
         }
 
-        $attributeDefinitionManager->remove($data, true,);
+        $attributeDefinitionManager->remove($data, true);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

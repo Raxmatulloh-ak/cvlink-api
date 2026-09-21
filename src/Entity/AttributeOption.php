@@ -1,38 +1,37 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Repository\AttributeOptionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AttributeOptionRepository::class)]
-#[ApiResource(
-    normalizationContext: ['groups' => ['attribute_option:read']],
-    denormalizationContext: ['groups' => ['attribute_option:write']],
-)]
+#[ORM\UniqueConstraint(name: 'uniq_option', columns: ['attribute_id', 'label'])]
 class AttributeOption
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['attribute_option:read'])]
+    #[Groups(['attribute:read'])]
     private ?int $id = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'options')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?AttributeDefinition $attribute = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 255)]
-    #[Groups(['attribute_option:read', 'attribute_option:write'])]
+    #[Groups(['attribute:read', 'attribute:write'])]
     private ?string $label = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['attribute_option:read', 'attribute_option:write'])]
+    #[Assert\PositiveOrZero]
+    #[Groups(['attribute:read', 'attribute:write'])]
     private ?int $displayOrder = null;
 
     public function getId(): ?int

@@ -24,12 +24,12 @@ class AttributeDefinitionUpdateDto
     private ?string $description = null;
 
     #[Assert\NotNull]
-    #[Groups(['attribute:update'])]
-    private ?AttributeValueType $valueType = null;
-
-    #[Assert\NotNull]
+    #[Assert\Positive]
     #[Groups(['attribute:update'])]
     private ?int $version = null;
+
+    #[Groups(['attribute:update'])]
+    private array $options = [];
 
     public function getCategory(): ?AttributeCategory
     {
@@ -67,18 +67,6 @@ class AttributeDefinitionUpdateDto
         return $this;
     }
 
-    public function getValueType(): ?AttributeValueType
-    {
-        return $this->valueType;
-    }
-
-    public function setValueType(?AttributeValueType $valueType): static
-    {
-        $this->valueType = $valueType;
-
-        return $this;
-    }
-
     public function getVersion(): ?int
     {
         return $this->version;
@@ -87,6 +75,18 @@ class AttributeDefinitionUpdateDto
     public function setVersion(?int $version): static
     {
         $this->version = $version;
+
+        return $this;
+    }
+
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    public function setOptions(array $options): static
+    {
+        $this->options = $options;
 
         return $this;
     }

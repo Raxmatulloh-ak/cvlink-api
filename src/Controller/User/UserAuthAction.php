@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\User;
 
-use App\Component\User\Dtos\TokenDto;
+use App\Component\User\Dto\TokenDto;
 use App\Component\User\TokenCreator;
 use App\Controller\Base\AbstractController;
 use App\Entity\User;

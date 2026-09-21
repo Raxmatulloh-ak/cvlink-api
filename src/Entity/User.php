@@ -9,7 +9,7 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
-use App\Component\User\Dtos\TokenDto;
+use App\Component\User\Dto\TokenDto;
 use App\Controller\User\UserAboutMeAction;
 use App\Controller\User\UserAuthAction;
 use App\Controller\User\UserCreateAction;

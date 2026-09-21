@@ -38,6 +38,11 @@ abstract class AbstractManager
         }
     }
 
+    public function flush(): void
+    {
+        $this->entityManager->flush();
+    }
+
     protected function getEntityManager(): EntityManagerInterface
     {
         return $this->entityManager;

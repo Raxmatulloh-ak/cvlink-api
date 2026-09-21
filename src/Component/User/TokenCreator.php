@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Component\User;
 
-use App\Component\User\Dtos\TokenDto;
+use App\Component\User\Dto\TokenDto;
 use App\Entity\User;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 

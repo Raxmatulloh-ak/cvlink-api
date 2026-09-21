@@ -35,6 +35,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             controller: AttributeDefinitionCreateAction::class,
             security: "is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
+            write: false
         ),
         new Patch(
             controller: AttributeDefinitionUpdateAction::class,
@@ -79,11 +80,11 @@ class AttributeDefinition implements CreatedAtSettableInterface, UpdatedAtSettab
 
     #[ORM\Column(enumType: AttributeValueType::class)]
     #[Assert\NotNull]
-    #[Groups(['attribute:write'])]
+    #[Groups(['attribute:read', 'attribute:write'])]
     private ?AttributeValueType $valueType = null;
 
     #[ORM\Column(length: 255, unique: true, nullable: true)]
-    #[Groups(['attribute:read', 'attribute:write'])]
+    #[Groups(['attribute:read'])]
     private ?string $builtinKey = null;
 
     #[ORM\Version]
@@ -102,18 +103,14 @@ class AttributeDefinition implements CreatedAtSettableInterface, UpdatedAtSettab
      * @var Collection<int, UserAttributeValue>
      */
     #[ORM\OneToMany(targetEntity: UserAttributeValue::class, mappedBy: 'attribute')]
-    #[Groups(['attribute:read'])]
     private Collection $userAttributeValues;
 
     /**
      * @var Collection<int, AttributeOption>
      */
-    #[ORM\OneToMany(
-        targetEntity: AttributeOption::class,
-        mappedBy: 'attribute',
-        cascade: ['persist'],
-        orphanRemoval: true,
-    )]
+    #[Assert\Valid]
+    #[ORM\OneToMany(targetEntity: AttributeOption::class, mappedBy: 'attribute')]
+    #[ORM\OrderBy(['displayOrder' => 'ASC'])]
     #[Groups(['attribute:read', 'attribute:write'])]
     private Collection $options;
 
@@ -243,11 +240,7 @@ class AttributeDefinition implements CreatedAtSettableInterface, UpdatedAtSettab
 
     public function removeOption(AttributeOption $option): static
     {
-        if ($this->options->removeElement($option)) {
-            if ($option->getAttribute() === $this) {
-                $option->setAttribute(null);
-            }
-        }
+        $this->options->removeElement($option);
 
         return $this;
     }
