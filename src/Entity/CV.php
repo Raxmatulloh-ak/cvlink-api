@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
@@ -16,6 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CVRepository::class)]
 #[ApiResource]
+#[ORM\UniqueConstraint(name: 'uniq_candidate_cv', columns: ['candidate_id', 'position_id'])]
 class CV implements CreatedAtSettableInterface, UpdatedAtSettableInterface
 {
     use CreatedAtAccessorsTrait, UpdatedAtAccessorsTrait;
@@ -30,7 +33,7 @@ class CV implements CreatedAtSettableInterface, UpdatedAtSettableInterface
     private ?User $candidate = null;
 
     #[ORM\ManyToOne(inversedBy: 'cvs')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'cascade')]
     private ?Position $position = null;
 
     #[ORM\Column(enumType: CvStatus::class)]

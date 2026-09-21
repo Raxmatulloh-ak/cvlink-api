@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
@@ -13,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserAttributeValueRepository::class)]
 #[ApiResource]
+#[ORM\UniqueConstraint(name: 'uniq_user_attribute', columns: ['owner_id', 'attribute_id'])]
 class UserAttributeValue implements CreatedAtSettableInterface, UpdatedAtSettableInterface
 {
     use CreatedAtAccessorsTrait, UpdatedAtAccessorsTrait;

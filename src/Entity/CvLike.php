@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
@@ -10,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CvLikeRepository::class)]
 #[ApiResource]
+#[ORM\UniqueConstraint(name: 'uniq_cv_like', columns: ['cv_id', 'recruiter_id'])]
 class CvLike implements CreatedAtSettableInterface
 {
     use CreatedAtAccessorsTrait;
