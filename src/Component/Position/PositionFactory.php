@@ -12,13 +12,13 @@ class PositionFactory
     public function create(
         string $title,
         ?string $description,
-        PositionAccessType $accessMode,
+        PositionAccessType $accessType,
         int $maxProjects,
     ): Position {
         return new Position()
             ->setTitle($title)
             ->setDescription($description)
-            ->setAccessType($accessMode)
+            ->setAccessType($accessType)
             ->setMaxProjects($maxProjects);
     }
 }

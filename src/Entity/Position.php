@@ -1,7 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use App\Component\Position\Dto\PositionUpdateDto;
+use App\Controller\Position\PositionCreateAction;
+use App\Controller\Position\PositionDeleteAction;
+use App\Controller\Position\PositionDuplicateAction;
+use App\Controller\Position\PositionUpdateAction;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
 use App\Entity\Interfaces\UpdatedAtSettableInterface;
 use App\Entity\Traits\CreatedAtAccessorsTrait;
@@ -12,8 +25,43 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PositionRepository::class)]
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(),
+        new Post(
+            controller: PositionCreateAction::class,
+            security: "is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
+            write: false,
+        ),
+        new Patch(
+            controller: PositionUpdateAction::class,
+            denormalizationContext: ['groups' => ['position:update'],],
+            security: "is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
+            input: PositionUpdateDto::class,
+            write: false,
+        ),
+        new Delete(
+            controller: PositionDeleteAction::class,
+            security: "is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
+            write: false,
+        ),
+        new Post(
+            uriTemplate: '/positions/{id}/duplicate',
+            controller: PositionDuplicateAction::class,
+            security: "is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
+            input: false,
+            write: false,
+            name: 'position_duplicate',
+        ),
+    ],
+    normalizationContext: ['groups' => ['position:read']],
+    denormalizationContext: ['groups' => ['position:write']],
+)]
 class Position implements CreatedAtSettableInterface, UpdatedAtSettableInterface
 {
     use CreatedAtAccessorsTrait, UpdatedAtAccessorsTrait;
@@ -21,25 +69,36 @@ class Position implements CreatedAtSettableInterface, UpdatedAtSettableInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['position:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 255)]
+    #[Groups(['position:read', 'position:write'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['position:read', 'position:write'])]
     private ?string $description = null;
 
     #[ORM\Column(enumType: PositionAccessType::class)]
+    #[Assert\NotNull]
+    #[Groups(['position:read', 'position:write'])]
     private ?PositionAccessType $accessType = null;
 
     #[ORM\Column]
-    private ?int $maxProjects = null;
+    #[Assert\PositiveOrZero]
+    #[Groups(['position:read', 'position:write'])]
+    private int $maxProjects = 0;
 
     #[ORM\Version]
     #[ORM\Column(type: Types::INTEGER)]
-    private ?int $version = 1;
+    #[Groups(['position:read'])]
+    private int $version = 1;
 
     #[ORM\Column]
+    #[Groups(['position:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
@@ -138,7 +197,7 @@ class Position implements CreatedAtSettableInterface, UpdatedAtSettableInterface
         return $this;
     }
 
-    public function getMaxProjects(): ?int
+    public function getMaxProjects(): int
     {
         return $this->maxProjects;
     }
@@ -150,16 +209,9 @@ class Position implements CreatedAtSettableInterface, UpdatedAtSettableInterface
         return $this;
     }
 
-    public function getVersion(): ?int
+    public function getVersion(): int
     {
         return $this->version;
-    }
-
-    public function setVersion(int $version): static
-    {
-        $this->version = $version;
-
-        return $this;
     }
 
     public function getUpdatedBy(): ?User

@@ -37,7 +37,7 @@ class UserAttributeValue implements CreatedAtSettableInterface, UpdatedAtSettabl
     private ?string $imageReference = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $numericValue = null;
+    private ?float $numericValue = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $dateValue = null;
@@ -117,12 +117,12 @@ class UserAttributeValue implements CreatedAtSettableInterface, UpdatedAtSettabl
         return $this;
     }
 
-    public function getNumericValue(): ?int
+    public function getNumericValue(): ?float
     {
         return $this->numericValue;
     }
 
-    public function setNumericValue(?int $numericValue): static
+    public function setNumericValue(?float $numericValue): static
     {
         $this->numericValue = $numericValue;
 
