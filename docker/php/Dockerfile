@@ -5,8 +5,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     curl \
     libpq-dev \
+    libxml2-dev \
     $PHPIZE_DEPS \
-    && docker-php-ext-install pdo_pgsql \
+    && docker-php-ext-install pdo_pgsql dom \
 	&& curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 RUN git config --global --add safe.directory /var/www/html
