@@ -28,12 +28,6 @@ security:
             methods:
                 - POST
 
-        main:
-            pattern: ^/api
-            stateless: true
-            provider: app_user_provider
-            jwt: ~
-
         login:
             pattern: ^/api/login
             stateless: true
@@ -42,6 +36,12 @@ security:
                 check_path: /api/login
                 username_path: email
                 password_path: password
+
+        main:
+            pattern: ^/api
+            stateless: true
+            provider: app_user_provider
+            jwt: ~
 
             # Activate different ways to authenticate:
             # https://symfony.com/doc/current/security.html#the-firewall
