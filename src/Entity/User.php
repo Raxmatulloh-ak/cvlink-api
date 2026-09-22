@@ -84,7 +84,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank]
     #[Assert\Length(min: 6, minMessage: 'Password must be at least {{ limit }} characters long')]
     #[Groups(['user:write'])]
     private ?string $password = null;
