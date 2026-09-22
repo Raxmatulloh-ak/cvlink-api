@@ -44,7 +44,7 @@ class Project implements CreatedAtSettableInterface, UpdatedAtSettableInterface
 
     #[ORM\Version]
     #[ORM\Column(type: Types::INTEGER)]
-    private ?int $version = 1;
+    private int $version = 1;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -136,16 +136,9 @@ class Project implements CreatedAtSettableInterface, UpdatedAtSettableInterface
         return $this;
     }
 
-    public function getVersion(): ?int
+    public function getVersion(): int
     {
         return $this->version;
-    }
-
-    public function setVersion(int $version): static
-    {
-        $this->version = $version;
-
-        return $this;
     }
 
     public function getUpdatedBy(): ?User

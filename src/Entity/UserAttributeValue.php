@@ -59,7 +59,7 @@ class UserAttributeValue implements CreatedAtSettableInterface, UpdatedAtSettabl
 
     #[ORM\Version]
     #[ORM\Column(type: Types::INTEGER)]
-    private ?int $version = 1;
+    private int $version = 1;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -192,15 +192,8 @@ class UserAttributeValue implements CreatedAtSettableInterface, UpdatedAtSettabl
         return $this;
     }
 
-    public function getVersion(): ?int
+    public function getVersion(): int
     {
         return $this->version;
-    }
-
-    public function setVersion(int $version): static
-    {
-        $this->version = $version;
-
-        return $this;
     }
 }
