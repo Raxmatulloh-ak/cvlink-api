@@ -29,11 +29,11 @@ class CV implements CreatedAtSettableInterface, UpdatedAtSettableInterface
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'cvs')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $candidate = null;
 
     #[ORM\ManyToOne(inversedBy: 'cvs')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'cascade')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Position $position = null;
 
     #[ORM\Column(enumType: CvStatus::class)]

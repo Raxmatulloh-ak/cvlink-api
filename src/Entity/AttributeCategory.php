@@ -13,29 +13,33 @@ use App\Repository\AttributeCategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: AttributeCategoryRepository::class)]
 #[ApiResource(
     operations: [
         new GetCollection(),
         new Get()
-    ]
+    ],
+    normalizationContext: ['groups' => ['category:read']],
 )]
 class AttributeCategory implements CreatedAtSettableInterface, UpdatedAtSettableInterface
 {
-    use CreatedAtAccessorsTrait,
-        UpdatedAtAccessorsTrait;
+    use CreatedAtAccessorsTrait, UpdatedAtAccessorsTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['category:read', 'attribute:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 80, unique: true)]
+    #[Groups(['category:read', 'attribute:read'])]
     private ?string $name = null;
 
     #[ORM\Column]
-    private ?int $displayOrder = null;
+    #[Groups(['category:read'])]
+    private int $displayOrder = 0;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -71,7 +75,7 @@ class AttributeCategory implements CreatedAtSettableInterface, UpdatedAtSettable
         return $this;
     }
 
-    public function getDisplayOrder(): ?int
+    public function getDisplayOrder(): int
     {
         return $this->displayOrder;
     }

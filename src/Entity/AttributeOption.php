@@ -16,7 +16,7 @@ class AttributeOption
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['attribute:read'])]
+    #[Groups(['attribute:read', 'position:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'options')]
@@ -25,14 +25,14 @@ class AttributeOption
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Assert\Length(min: 2, max: 255)]
-    #[Groups(['attribute:read', 'attribute:write'])]
+    #[Assert\Length(max: 255)]
+    #[Groups(['attribute:read', 'attribute:write', 'position:read'])]
     private ?string $label = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column]
     #[Assert\PositiveOrZero]
-    #[Groups(['attribute:read', 'attribute:write'])]
-    private ?int $displayOrder = null;
+    #[Groups(['attribute:read', 'attribute:write', 'position:read'])]
+    private int $displayOrder = 0;
 
     public function getId(): ?int
     {
@@ -58,17 +58,17 @@ class AttributeOption
 
     public function setLabel(string $label): static
     {
-        $this->label = $label;
+        $this->label = trim($label);
 
         return $this;
     }
 
-    public function getDisplayOrder(): ?int
+    public function getDisplayOrder(): int
     {
         return $this->displayOrder;
     }
 
-    public function setDisplayOrder(?int $displayOrder): static
+    public function setDisplayOrder(int $displayOrder): static
     {
         $this->displayOrder = $displayOrder;
 

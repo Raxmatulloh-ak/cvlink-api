@@ -60,18 +60,18 @@ class AttributeDefinition implements CreatedAtSettableInterface, UpdatedAtSettab
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['attribute:read'])]
+    #[Groups(['attribute:read', 'position:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'attributeDefinitions')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
-    #[Groups(['attribute:read', 'attribute:write', 'attribute:update'])]
+    #[Groups(['attribute:read', 'attribute:write', 'attribute:update', 'position:read'])]
     private ?AttributeCategory $category = null;
 
     #[ORM\Column(length: 255, unique: true)]
     #[Assert\NotBlank]
-    #[Groups(['attribute:read', 'attribute:write', 'attribute:update'])]
+    #[Groups(['attribute:read', 'attribute:write', 'attribute:update', 'position:read'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -80,11 +80,11 @@ class AttributeDefinition implements CreatedAtSettableInterface, UpdatedAtSettab
 
     #[ORM\Column(enumType: AttributeValueType::class)]
     #[Assert\NotNull]
-    #[Groups(['attribute:read', 'attribute:write'])]
+    #[Groups(['attribute:read', 'attribute:write', 'position:read'])]
     private ?AttributeValueType $valueType = null;
 
     #[ORM\Column(length: 255, unique: true, nullable: true)]
-    #[Groups(['attribute:read'])]
+    #[Groups(['attribute:read', 'position:read'])]
     private ?string $builtinKey = null;
 
     #[ORM\Version]
@@ -111,7 +111,7 @@ class AttributeDefinition implements CreatedAtSettableInterface, UpdatedAtSettab
     #[Assert\Valid]
     #[ORM\OneToMany(targetEntity: AttributeOption::class, mappedBy: 'attribute')]
     #[ORM\OrderBy(['displayOrder' => 'ASC'])]
-    #[Groups(['attribute:read', 'attribute:write'])]
+    #[Groups(['attribute:read', 'attribute:write', 'position:read'])]
     private Collection $options;
 
     public function __construct()
@@ -144,7 +144,7 @@ class AttributeDefinition implements CreatedAtSettableInterface, UpdatedAtSettab
 
     public function setName(string $name): static
     {
-        $this->name = $name;
+        $this->name = trim($name);
 
         return $this;
     }

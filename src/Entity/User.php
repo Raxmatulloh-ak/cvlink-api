@@ -27,10 +27,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ApiResource(
-    operations:[
+    operations: [
         new GetCollection(),
-        new Get(),
-        New Post(
+        new Get(
+            security: "is_granted('ROLE_ADMIN') || object === user",
+        ),
+        new Post(
             controller: UserCreateAction::class,
             write: false,
         ),
@@ -48,7 +50,9 @@ use Symfony\Component\Validator\Constraints as Assert;
             write: false,
             name: 'aboutMe',
         ),
-        New Delete(),
+        new Delete(
+            security: "is_granted('ROLE_ADMIN') || object === user",
+        ),
     ],
     normalizationContext: ['groups' => ['user:read']],
     denormalizationContext: ['groups' => ['user:write']],
@@ -67,7 +71,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     #[Groups(['user:read'])]
-    private array $roles = [];
+    private array $roles = ['ROLE_CANDIDATE'];
 
     #[ORM\Column(length: 15)]
     #[Groups(['user:read', 'user:write'])]
@@ -119,7 +123,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, CV>
      */
-    #[ORM\OneToMany(targetEntity: CV::class, mappedBy: 'candidate',  cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: CV::class, mappedBy: 'candidate', cascade: ['persist'], orphanRemoval: true)]
     private Collection $cvs;
 
     public function __construct()
@@ -190,7 +194,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setEmail(string $email): static
     {
-        $this->email = $email;
+        $this->email = strtolower(trim($email));
 
         return $this;
     }

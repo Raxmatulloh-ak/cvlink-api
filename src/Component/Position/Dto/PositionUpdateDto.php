@@ -7,7 +7,7 @@ namespace App\Component\Position\Dto;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class PositionUpdateDto extends PositionCreateDto
+class PositionUpdateDto extends PositionWriteDto
 {
     #[Assert\NotNull]
     #[Assert\Positive]
@@ -19,10 +19,8 @@ class PositionUpdateDto extends PositionCreateDto
         return $this->version;
     }
 
-    public function setVersion(?int $version): static
+    public function setVersion(?int $version): void
     {
         $this->version = $version;
-
-        return $this;
     }
 }

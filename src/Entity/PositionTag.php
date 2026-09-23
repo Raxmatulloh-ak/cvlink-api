@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Repository\PositionTagRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: PositionTagRepository::class)]
 #[ORM\UniqueConstraint(name: 'uniq_tag_position', columns: ['position_id', 'tag_id'])]
-#[ApiResource]
 class PositionTag
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['position:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'positionTags')]
@@ -24,6 +24,7 @@ class PositionTag
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[Groups(['position:read'])]
     private ?Tag $tag = null;
 
     public function getId(): ?int

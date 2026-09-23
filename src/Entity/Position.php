@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Component\Position\Dto\PositionUpdateDto;
+use App\Component\Position\Dto\PositionWriteDto;
 use App\Controller\Position\PositionCreateAction;
 use App\Controller\Position\PositionDeleteAction;
 use App\Controller\Position\PositionDuplicateAction;
@@ -36,11 +37,11 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             controller: PositionCreateAction::class,
             security: "is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
+            input: PositionWriteDto::class,
             write: false,
         ),
         new Patch(
             controller: PositionUpdateAction::class,
-            denormalizationContext: ['groups' => ['position:update'],],
             security: "is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
             input: PositionUpdateDto::class,
             write: false,
@@ -75,21 +76,21 @@ class Position implements CreatedAtSettableInterface, UpdatedAtSettableInterface
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 255)]
-    #[Groups(['position:read', 'position:write'])]
+    #[Groups(['position:read'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['position:read', 'position:write'])]
+    #[Groups(['position:read'])]
     private ?string $description = null;
 
     #[ORM\Column(enumType: PositionAccessType::class)]
     #[Assert\NotNull]
-    #[Groups(['position:read', 'position:write'])]
+    #[Groups(['position:read'])]
     private ?PositionAccessType $accessType = null;
 
     #[ORM\Column]
     #[Assert\PositiveOrZero]
-    #[Groups(['position:read', 'position:write'])]
+    #[Groups(['position:read'])]
     private int $maxProjects = 0;
 
     #[ORM\Version]
@@ -110,29 +111,23 @@ class Position implements CreatedAtSettableInterface, UpdatedAtSettableInterface
     /**
      * @var Collection<int, PositionAttribute>
      */
-    #[ORM\OneToMany(targetEntity: PositionAttribute::class, mappedBy: 'position', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: PositionAttribute::class, mappedBy: 'position')]
+    #[ORM\OrderBy(['displayOrder' => 'ASC'])]
+    #[Groups(['position:read'])]
     private Collection $positionAttributes;
 
     /**
      * @var Collection<int, PositionAccessRule>
      */
-    #[ORM\OneToMany(
-        targetEntity: PositionAccessRule::class,
-        mappedBy: 'position',
-        cascade: ['persist'],
-        orphanRemoval: true
-    )]
+    #[ORM\OneToMany(targetEntity: PositionAccessRule::class, mappedBy: 'position')]
+    #[Groups(['position:read'])]
     private Collection $accessRules;
 
     /**
      * @var Collection<int, PositionTag>
      */
-    #[ORM\OneToMany(
-        targetEntity: PositionTag::class,
-        mappedBy: 'position',
-        cascade: ['persist'],
-        orphanRemoval: true
-    )]
+    #[ORM\OneToMany(targetEntity: PositionTag::class, mappedBy: 'position')]
+    #[Groups(['position:read'])]
     private Collection $positionTags;
 
     /**
@@ -246,12 +241,7 @@ class Position implements CreatedAtSettableInterface, UpdatedAtSettableInterface
 
     public function removePositionAttribute(PositionAttribute $positionAttribute): static
     {
-        if ($this->positionAttributes->removeElement($positionAttribute)) {
-            // set the owning side to null (unless already changed)
-            if ($positionAttribute->getPosition() === $this) {
-                $positionAttribute->setPosition(null);
-            }
-        }
+        $this->positionAttributes->removeElement($positionAttribute);
 
         return $this;
     }
@@ -276,12 +266,9 @@ class Position implements CreatedAtSettableInterface, UpdatedAtSettableInterface
 
     public function removeAccessRule(PositionAccessRule $accessRule): static
     {
-        if ($this->accessRules->removeElement($accessRule)) {
-            // set the owning side to null (unless already changed)
-            if ($accessRule->getPosition() === $this) {
-                $accessRule->setPosition(null);
-            }
-        }
+        $this->accessRules->removeElement(
+            $accessRule
+        );
 
         return $this;
     }
@@ -306,12 +293,9 @@ class Position implements CreatedAtSettableInterface, UpdatedAtSettableInterface
 
     public function removePositionTag(PositionTag $positionTag): static
     {
-        if ($this->positionTags->removeElement($positionTag)) {
-            // set the owning side to null (unless already changed)
-            if ($positionTag->getPosition() === $this) {
-                $positionTag->setPosition(null);
-            }
-        }
+        $this->positionTags->removeElement(
+            $positionTag
+        );
 
         return $this;
     }

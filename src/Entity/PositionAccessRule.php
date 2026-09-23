@@ -4,51 +4,61 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Enum\AccessRuleOperator;
 use App\Repository\PositionAccessRuleRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: PositionAccessRuleRepository::class)]
-#[ApiResource]
 class PositionAccessRule
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['position:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'accessRules')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Position $position = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[Groups(['position:read'])]
     private ?AttributeDefinition $attribute = null;
 
     #[ORM\Column(enumType: AccessRuleOperator::class)]
+    #[Groups(['position:read'])]
     private ?AccessRuleOperator $operation = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['position:read'])]
     private ?string $textOperand = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $numericOperand = null;
+    #[Groups(['position:read'])]
+    private ?float $numericOperand = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[Groups(['position:read'])]
     private ?\DateTimeImmutable $dateOperand = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[Groups(['position:read'])]
     private ?\DateTimeImmutable $periodStartOperand = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[Groups(['position:read'])]
     private ?\DateTimeImmutable $periodEndOperand = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['position:read'])]
     private ?bool $booleanOperand = null;
 
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['position:read'])]
     private ?AttributeOption $option = null;
 
     public function getId(): ?int
@@ -104,12 +114,12 @@ class PositionAccessRule
         return $this;
     }
 
-    public function getNumericOperand(): ?int
+    public function getNumericOperand(): ?float
     {
         return $this->numericOperand;
     }
 
-    public function setNumericOperand(?int $numericOperand): static
+    public function setNumericOperand(?float $numericOperand): static
     {
         $this->numericOperand = $numericOperand;
 
