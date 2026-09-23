@@ -4,29 +4,32 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Repository\PositionAttributeRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: PositionAttributeRepository::class)]
-#[ApiResource]
+#[ORM\UniqueConstraint(name: 'uniq_position_attribute', columns: ['position_id', 'attribute_id'])]
 class PositionAttribute
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['position:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'positionAttributes')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'cascade')]
     private ?Position $position = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'cascade')]
+    #[Groups(['position:read'])]
     private ?AttributeDefinition $attribute = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $displayOrder = null;
+    #[ORM\Column]
+    #[Groups(['position:read'])]
+    private int $displayOrder = 0;
 
     public function getId(): ?int
     {
@@ -57,12 +60,12 @@ class PositionAttribute
         return $this;
     }
 
-    public function getDisplayOrder(): ?int
+    public function getDisplayOrder(): int
     {
         return $this->displayOrder;
     }
 
-    public function setDisplayOrder(?int $displayOrder): static
+    public function setDisplayOrder(int $displayOrder): static
     {
         $this->displayOrder = $displayOrder;
 
