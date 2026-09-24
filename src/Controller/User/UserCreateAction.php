@@ -22,7 +22,7 @@ class UserCreateAction extends AbstractController
         UserRepository $userRepository,
     ): User {
         $this->validate($data);
-        $email = strtolower(trim((string) $data->getEmail()));
+        $email = $data->getEmail();
 
         if ($userRepository->findOneByEmail($email)) {
             throw new BadRequestHttpException('Email already taken');
@@ -30,11 +30,11 @@ class UserCreateAction extends AbstractController
 
         $user = $userFactory->create(
             $email,
-            (string) $data->getPassword(),
+            $data->getPassword(),
             ['ROLE_CANDIDATE'],
             UserStatus::ACTIVE,
-            'en',
-            Theme::Light,
+            $data->getLocale(),
+            $data->getTheme(),
         );
 
         $userManager->save($user, true);

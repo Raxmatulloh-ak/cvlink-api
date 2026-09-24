@@ -20,8 +20,8 @@ class UserFactory
         string $password,
         array $roles,
         UserStatus $status,
-        string $locale,
-        Theme $theme,
+        ?string $locale = 'en',
+        ?Theme $theme = Theme::Light,
     ): User {
         $user = new User();
         $hashedPassword = $this->passwordEncoder->hashPassword($user, $password);
