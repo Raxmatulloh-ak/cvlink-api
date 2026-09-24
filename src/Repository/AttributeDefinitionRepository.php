@@ -21,6 +21,18 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
         return $this->findOneBy(['name' => $name]);
     }
 
+    /**
+     * @return AttributeDefinition[]
+     */
+    public function findBuiltinAttributes(): array
+    {
+        return $this->createQueryBuilder('attribute')
+            ->andWhere('attribute.builtinKey IS NOT NULL')
+            ->orderBy('attribute.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return AttributeDefinition[] Returns an array of AttributeDefinition objects
 //     */
