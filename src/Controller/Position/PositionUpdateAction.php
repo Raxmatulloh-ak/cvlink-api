@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Position;
 
+use ApiPlatform\Validator\ValidatorInterface;
 use App\Component\Position\Dto\PositionUpdateDto;
+use App\Component\Position\PositionConfigurationService;
 use App\Component\Position\PositionManager;
 use App\Controller\Base\AbstractController;
 use App\Entity\Position;
@@ -17,14 +19,19 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class PositionUpdateAction extends AbstractController
 {
-    public function __invoke(
-        PositionUpdateDto $data,
-        Request $request,
-        PositionRepository $positionRepository,
-        PositionManager $positionManager,
-    ): Position {
+    public function __construct(
+        ValidatorInterface $validator,
+        private readonly PositionRepository $positionRepository,
+        private readonly PositionManager $positionManager,
+        private readonly PositionConfigurationService $positionConfigurationService,
+    ) {
+        parent::__construct($validator);
+    }
+
+    public function __invoke(PositionUpdateDto $data, Request $request): Position
+    {
         $this->validate($data);
-        $position = $positionRepository->find($request->attributes->getInt('id'));
+        $position = $this->positionRepository->find($request->attributes->getInt('id'));
 
         if ($position === null) {
             throw new NotFoundHttpException('Position not found');
@@ -34,24 +41,22 @@ class PositionUpdateAction extends AbstractController
             throw new ConflictHttpException('Position was modified by another user');
         }
 
-        $title = trim((string)$data->getTitle());
-        $accessType = $data->getAccessType();
-        $maxProjects = $data->getMaxProjects();
-
         $position
-            ->setTitle($title)
+            ->setTitle($data->getTitle())
             ->setDescription($data->getDescription())
-            ->setAccessType($accessType)
-            ->setMaxProjects($maxProjects);
+            ->setAccessType($data->getAccessType())
+            ->setMaxProjects($data->getMaxProjects());
 
-        $currentUser = $this->getUser();
+        $user = $this->getUser();
 
-        if ($currentUser instanceof User) {
-            $position->setUpdatedBy($currentUser);
+        if ($user instanceof User) {
+            $position->setUpdatedBy($user);
         }
 
+        $this->positionConfigurationService->replace($position, $data);
+
         try {
-            $positionManager->save($position, true);
+            $this->positionManager->save($position, true);
         } catch (OptimisticLockException $exception) {
             throw new ConflictHttpException('Position was modified by another user', $exception);
         }

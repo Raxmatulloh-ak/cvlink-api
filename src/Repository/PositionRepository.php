@@ -16,6 +16,19 @@ class PositionRepository extends ServiceEntityRepository
         parent::__construct($registry, Position::class);
     }
 
+    public function deleteByIdAndVersion(int $id, int $version): int
+    {
+        return $this->getEntityManager()
+            ->createQueryBuilder()
+            ->delete(Position::class, 'position')
+            ->where('position.id = :id')
+            ->andWhere('position.version = :version')
+            ->setParameter('id', $id)
+            ->setParameter('version', $version)
+            ->getQuery()
+            ->execute();
+    }
+
 //    /**
 //     * @return Position[] Returns an array of Position objects
 //     */

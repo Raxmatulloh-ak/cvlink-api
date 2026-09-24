@@ -27,7 +27,7 @@ class Project implements CreatedAtSettableInterface, UpdatedAtSettableInterface
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'userProjects')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $candidate = null;
 
     #[ORM\Column(length: 255)]

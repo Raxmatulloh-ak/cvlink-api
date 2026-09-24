@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Controller\Position;
 
 use App\Component\Position\PositionManager;
+use App\Controller\Base\AbstractController;
 use App\Entity\Position;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
-class PositionDeleteAction
+class PositionDeleteAction extends AbstractController
 {
     public function __invoke(
         Position $data,

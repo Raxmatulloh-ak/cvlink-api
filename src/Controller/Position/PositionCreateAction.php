@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Controller\Position;
 
 use ApiPlatform\Validator\ValidatorInterface;
+use App\Component\Position\Dto\PositionWriteDto;
+use App\Component\Position\PositionConfigurationService;
 use App\Component\Position\PositionFactory;
 use App\Component\Position\PositionManager;
 use App\Controller\Base\AbstractController;
 use App\Entity\Position;
+use App\Entity\User;
 
 class PositionCreateAction extends AbstractController
 {
@@ -16,24 +19,25 @@ class PositionCreateAction extends AbstractController
         ValidatorInterface $validator,
         private readonly PositionFactory $positionFactory,
         private readonly PositionManager $positionManager,
+        private readonly PositionConfigurationService $positionConfigurationService,
     ) {
         parent::__construct($validator);
     }
 
-    public function __invoke(Position $data): Position
+    public function __invoke(PositionWriteDto $data): Position
     {
         $this->validate($data);
-        $title = trim((string)$data->getTitle());
-        $accessType = $data->getAccessType();
 
         $position = $this->positionFactory->create(
-            $title,
+            $data->getTitle(),
             $data->getDescription(),
-            $accessType,
+            $data->getAccessType(),
             $data->getMaxProjects(),
         );
 
-        $this->positionManager->save($position, true);
+        $this->positionManager->save($position);
+        $this->positionConfigurationService->replace($position, $data);
+        $this->positionManager->flush();
 
         return $position;
     }
