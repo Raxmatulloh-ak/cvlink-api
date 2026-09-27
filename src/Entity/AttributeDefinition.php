@@ -76,7 +76,7 @@ class AttributeDefinition implements CreatedAtSettableInterface, UpdatedAtSettab
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['attribute:read', 'position:read'])]
+    #[Groups(['attribute:read', 'position:read', 'value:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'attributeDefinitions')]

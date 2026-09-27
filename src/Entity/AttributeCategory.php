@@ -30,11 +30,11 @@ class AttributeCategory implements CreatedAtSettableInterface, UpdatedAtSettable
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['category:read', 'attribute:read'])]
+    #[Groups(['category:read', 'attribute:read', 'position:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 80, unique: true)]
-    #[Groups(['category:read', 'attribute:read'])]
+    #[Groups(['category:read', 'attribute:read', 'position:read'])]
     private ?string $name = null;
 
     #[ORM\Column]

@@ -2,14 +2,12 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
 use App\Entity\Traits\CreatedAtAccessorsTrait;
 use App\Repository\UserAuthIdentityRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserAuthIdentityRepository::class)]
-#[ApiResource]
 #[ORM\UniqueConstraint(name: 'UNIQ_PROVIDER_SUBJECT', columns: ['provider', 'provider_subject'])]
 class UserAuthIdentity implements CreatedAtSettableInterface
 {

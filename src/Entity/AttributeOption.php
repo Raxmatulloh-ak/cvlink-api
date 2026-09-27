@@ -16,7 +16,7 @@ class AttributeOption
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['attribute:read', 'position:read'])]
+    #[Groups(['attribute:read', 'position:read', 'value:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'options')]
@@ -26,7 +26,7 @@ class AttributeOption
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
-    #[Groups(['attribute:read', 'attribute:write', 'position:read'])]
+    #[Groups(['attribute:read', 'attribute:write', 'position:read', 'value:read'])]
     private ?string $label = null;
 
     #[ORM\Column]

@@ -9,10 +9,17 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Patch;
 use App\Component\User\Dto\TokenDto;
+use App\Component\User\Dto\UserManageDto;
+use App\Component\User\Dto\UserPreferencesDto;
 use App\Controller\User\UserAboutMeAction;
 use App\Controller\User\UserAuthAction;
 use App\Controller\User\UserCreateAction;
+use App\Controller\User\UserManageAction;
+use App\Controller\User\UserPreferencesAction;
+use App\Controller\User\UserProfileAction;
+use App\Controller\User\UserPublicProfileAction;
 use App\Enum\Theme;
 use App\Enum\UserStatus;
 use App\Repository\UserRepository;
@@ -28,7 +35,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: '`user`')]
 #[ApiResource(
     operations: [
-        new GetCollection(),
+        new GetCollection(
+            security: "is_granted('ROLE_ADMIN')",
+        ),
         new Get(
             security: "is_granted('ROLE_ADMIN') || object === user",
         ),
@@ -49,6 +58,36 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: false,
             write: false,
             name: 'aboutMe',
+        ),
+        new Patch(
+            uriTemplate: '/users/preferences',
+            controller: UserPreferencesAction::class,
+            input: UserPreferencesDto::class,
+            read: false,
+            write: false,
+            name: 'user_preferences',
+        ),
+        new Patch(
+            controller: UserManageAction::class,
+            security: "is_granted('ROLE_ADMIN')",
+            input: UserManageDto::class,
+            write: false,
+            name: 'user_manage',
+        ),
+        new Get(
+            uriTemplate: '/users/{id}/profile',
+            controller: UserProfileAction::class,
+            security: "is_granted('ROLE_CANDIDATE') || is_granted('ROLE_ADMIN')",
+            output: false,
+            read: false,
+            name: 'user_profile',
+        ),
+        new Get(
+            uriTemplate: '/users/{id}/public-profile',
+            controller: UserPublicProfileAction::class,
+            output: false,
+            read: false,
+            name: 'user_public_profile',
         ),
         new Delete(
             security: "is_granted('ROLE_ADMIN') || object === user",
@@ -75,11 +114,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 15)]
     #[Groups(['user:read', 'user:write'])]
-    private ?string $locale = null;
+    private string $locale = 'en';
 
     #[ORM\Column(enumType: Theme::class)]
     #[Groups(['user:read', 'user:write'])]
-    private ?Theme $theme = null;
+    private Theme $theme = Theme::Light;
 
     #[ORM\Column(length: 255, unique: true)]
     #[Assert\NotBlank]
@@ -163,7 +202,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getLocale(): ?string
+    public function getLocale(): string
     {
         return $this->locale;
     }
@@ -175,7 +214,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getTheme(): ?Theme
+    public function getTheme(): Theme
     {
         return $this->theme;
     }
