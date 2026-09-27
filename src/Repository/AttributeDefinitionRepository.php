@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\AttributeDefinition;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -31,6 +34,77 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->orderBy('attribute.id', 'ASC')
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @return AttributeDefinition[]
+     */
+    public function findForLookup(?string $prefix, ?int $categoryId, int $limit = 30): array
+    {
+        $queryBuilder = $this->createQueryBuilder('attribute')
+            ->addSelect('category')
+            ->join('attribute.category', 'category')
+            ->orderBy('attribute.name', 'ASC')
+            ->setMaxResults($limit);
+
+        if ($prefix !== null && $prefix !== '') {
+            $queryBuilder
+                ->andWhere('LOWER(attribute.name) LIKE LOWER(:prefix)')
+                ->setParameter('prefix', $prefix.'%');
+        }
+
+        if ($categoryId !== null) {
+            $queryBuilder
+                ->andWhere('category.id = :categoryId')
+                ->setParameter('categoryId', $categoryId);
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function findRecentForRecruiter(int $limit = 20): array
+    {
+        return $this->createQueryBuilder('attribute')
+            ->select(
+                'attribute.id AS id',
+                'attribute.name AS name',
+                'attribute.valueType AS valueType',
+                'category.id AS categoryId',
+                'category.name AS categoryName',
+                'MAX(COALESCE(position.updatedAt, position.createdAt)) AS usedAt',
+            )
+            ->join('attribute.category', 'category')
+            ->join('App\\Entity\\PositionAttribute', 'positionAttribute', 'WITH', 'positionAttribute.attribute = attribute')
+            ->join('positionAttribute.position', 'position')
+            ->groupBy('attribute.id, attribute.name, attribute.valueType, category.id, category.name')
+            ->orderBy('usedAt', 'DESC')
+            ->addOrderBy('attribute.id', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getArrayResult();
+    }
+
+    public function findRecentForCandidate(User $candidate, int $limit = 20): array
+    {
+        return $this->createQueryBuilder('attribute')
+            ->select(
+                'attribute.id AS id',
+                'attribute.name AS name',
+                'attribute.valueType AS valueType',
+                'category.id AS categoryId',
+                'category.name AS categoryName',
+                'MAX(COALESCE(value.updatedAt, value.createdAt)) AS usedAt',
+            )
+            ->join('attribute.category', 'category')
+            ->join('attribute.userAttributeValues', 'value')
+            ->andWhere('value.owner = :candidate')
+            ->setParameter('candidate', $candidate)
+            ->groupBy('attribute.id, attribute.name, attribute.valueType, category.id, category.name')
+            ->orderBy('usedAt', 'DESC')
+            ->addOrderBy('attribute.id', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getArrayResult();
     }
 
 //    /**

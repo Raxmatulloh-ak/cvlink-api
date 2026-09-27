@@ -13,6 +13,8 @@ use ApiPlatform\Metadata\Post;
 use App\Component\Discussion\Dto\DiscussionWriteDto;
 use App\Component\Position\Dto\PositionUpdateDto;
 use App\Component\Position\Dto\PositionWriteDto;
+use App\Controller\Discovery\DashboardAction;
+use App\Controller\Discovery\SearchAction;
 use App\Controller\Discussion\DiscussionCreateAction;
 use App\Controller\Discussion\DiscussionListAction;
 use App\Controller\Position\PositionCreateAction;
@@ -50,7 +52,6 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(
             uriTemplate: '/positions/{id}/discussions',
             controller: DiscussionListAction::class,
-            security: "is_granted('ROLE_CANDIDATE') || is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
             output: false,
             read: false,
             name: 'position_discussion_list',
@@ -58,7 +59,6 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             uriTemplate: '/positions/{id}/discussions',
             controller: DiscussionCreateAction::class,
-            security: "is_granted('ROLE_CANDIDATE') || is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
             input: DiscussionWriteDto::class,
             output: false,
             read: false,
@@ -89,6 +89,20 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: false,
             write: false,
             name: 'position_duplicate',
+        ),
+        new Get(
+            uriTemplate: '/dashboard',
+            controller: DashboardAction::class,
+            output: false,
+            read: false,
+            name: 'dashboard',
+        ),
+        new Get(
+            uriTemplate: '/search',
+            controller: SearchAction::class,
+            output: false,
+            read: false,
+            name: 'search',
         ),
     ],
     normalizationContext: ['groups' => ['position:read']],

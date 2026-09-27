@@ -49,6 +49,6 @@ class PositionReadAction extends AbstractController
             'groups' => ['position:read'],
         ]);
 
-        return new JsonResponse($json);
+        return new JsonResponse($json, 200, [], true);
     }
 }

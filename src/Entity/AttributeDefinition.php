@@ -14,6 +14,8 @@ use App\Component\AttributeDefinition\Dto\AttributeDefinitionUpdateDto;
 use App\Controller\AttributeDefinition\AttributeDefinitionCreateAction;
 use App\Controller\AttributeDefinition\AttributeDefinitionDeleteAction;
 use App\Controller\AttributeDefinition\AttributeDefinitionUpdateAction;
+use App\Controller\AttributeDefinition\AttributeLookupAction;
+use App\Controller\AttributeDefinition\RecentAttributesAction;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
 use App\Entity\Interfaces\UpdatedAtSettableInterface;
 use App\Entity\Traits\CreatedAtAccessorsTrait;
@@ -31,6 +33,20 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     operations: [
         new GetCollection(),
+        new GetCollection(
+            uriTemplate: '/attributes/lookup',
+            controller: AttributeLookupAction::class,
+            output: false,
+            read: false,
+            name: 'attribute_lookup',
+        ),
+        new GetCollection(
+            uriTemplate: '/attributes/recent',
+            controller: RecentAttributesAction::class,
+            output: false,
+            read: false,
+            name: 'attribute_recent',
+        ),
         new Get(),
         new Post(
             controller: AttributeDefinitionCreateAction::class,
