@@ -28,20 +28,41 @@ class TagProvider
         return $name;
     }
 
-    public function getOrCreate(string $name): Tag
+    /**
+     * @param string[] $names
+     * @return array<string, Tag>
+     */
+    public function getOrCreateMany(array $names): array
     {
-        $name = $this->normalize($name);
+        $normalized = [];
 
-        $tag = $this->tagRepository
-            ->findOneByName($name);
-
-        if ($tag !== null) {
-            return $tag;
+        foreach ($names as $name) {
+            $name = $this->normalize($name);
+            $normalized[$name] = $name;
         }
 
-        $tag = $this->tagFactory->create($name);
-        $this->tagManager->save($tag);
+        if ($normalized === []) {
+            return [];
+        }
 
-        return $tag;
+        $tags = [];
+
+        foreach ($this->tagRepository->findByNames(array_values($normalized)) as $tag) {
+            if ($tag->getName() !== null) {
+                $tags[$tag->getName()] = $tag;
+            }
+        }
+
+        foreach ($normalized as $name) {
+            if (isset($tags[$name])) {
+                continue;
+            }
+
+            $tag = $this->tagFactory->create($name);
+            $this->tagManager->save($tag);
+            $tags[$name] = $tag;
+        }
+
+        return $tags;
     }
 }

@@ -23,28 +23,26 @@ class PositionTagService
     public function replace(Position $position, array $tags): void
     {
         $existing = $this->getExisting($position);
-        $received = [];
+        $names = [];
 
         foreach ($tags as $name) {
             $name = $this->tagProvider->normalize($name);
+            $names[$name] = $name;
+        }
 
-            if (isset($received[$name])) {
-                continue;
-            }
+        $missing = array_diff_key($names, $existing);
+        $availableTags = $this->tagProvider->getOrCreateMany(array_values($missing));
 
-            $received[$name] = true;
-
+        foreach ($names as $name) {
             if (isset($existing[$name])) {
                 unset($existing[$name]);
 
                 continue;
             }
 
-            $tag = $this->tagProvider->getOrCreate($name);
-
             $positionTag = $this->positionTagFactory->create(
                 $position,
-                $tag,
+                $availableTags[$name],
             );
 
             $position->addPositionTag($positionTag);

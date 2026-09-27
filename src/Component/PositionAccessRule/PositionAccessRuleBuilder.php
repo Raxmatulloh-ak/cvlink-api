@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Component\PositionAccessRule;
 
-use App\Component\AttributeDefinition\AttributeDefinitionResolver;
 use App\Component\Position\Dto\PositionAccessRuleDto;
 use App\Entity\AttributeDefinition;
 use App\Entity\AttributeOption;
@@ -12,21 +11,21 @@ use App\Entity\Position;
 use App\Entity\PositionAccessRule;
 use App\Enum\AccessRuleOperator;
 use App\Enum\AttributeValueType;
-use App\Repository\AttributeOptionRepository;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PositionAccessRuleBuilder
 {
     public function __construct(
-        private readonly AttributeDefinitionResolver $attributeDefinitionResolver,
-        private readonly AttributeOptionRepository $attributeOptionRepository,
         private readonly PositionAccessRuleFactory $positionAccessRuleFactory,
     ) {
     }
 
-    public function build(Position $position, PositionAccessRuleDto $data): PositionAccessRule
-    {
-        $attribute = $this->attributeDefinitionResolver->get((int)$data->getAttributeId());
+    public function build(
+        Position $position,
+        PositionAccessRuleDto $data,
+        AttributeDefinition $attribute,
+        ?AttributeOption $option,
+    ): PositionAccessRule {
         $operation = $data->getOperation();
 
         if ($operation === null) {
@@ -77,10 +76,7 @@ class PositionAccessRuleBuilder
                 $position,
                 $attribute,
                 $operation,
-                option: $this->getOption(
-                    $attribute,
-                    $data->getOptionId(),
-                ),
+                option: $this->getOption($attribute, $option),
             ),
 
             default => throw new BadRequestHttpException('Attribute type cannot be used in access rule'),
@@ -106,14 +102,8 @@ class PositionAccessRuleBuilder
         }
     }
 
-    private function getOption(AttributeDefinition $attribute, ?int $optionId): AttributeOption
+    private function getOption(AttributeDefinition $attribute, ?AttributeOption $option): AttributeOption
     {
-        if ($optionId === null) {
-            throw new BadRequestHttpException('Option is required');
-        }
-
-        $option = $this->attributeOptionRepository->find($optionId);
-
         if ($option === null || $option->getAttribute()?->getId() !== $attribute->getId()) {
             throw new BadRequestHttpException('Invalid attribute option');
         }
@@ -150,7 +140,6 @@ class PositionAccessRuleBuilder
     private function getPeriodEnd(PositionAccessRuleDto $data): \DateTimeImmutable
     {
         $start = $this->getPeriodStart($data);
-
         $end = $data->getPeriodEndOperand() ?? throw new BadRequestHttpException('Period end is required');
 
         if ($start > $end) {

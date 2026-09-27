@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Component\PositionAttribute;
 
-use App\Component\AttributeDefinition\AttributeDefinitionResolver;
 use App\Component\Position\Dto\PositionAttributeDto;
+use App\Entity\AttributeDefinition;
 use App\Entity\Position;
 use App\Entity\PositionAttribute;
+use App\Repository\AttributeDefinitionRepository;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PositionAttributeService
 {
     public function __construct(
-        private readonly AttributeDefinitionResolver $attributeDefinitionResolver,
+        private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly PositionAttributeFactory $positionAttributeFactory,
         private readonly PositionAttributeManager $positionAttributeManager,
     ) {
@@ -26,6 +27,7 @@ class PositionAttributeService
     {
         $existing = $this->getExisting($position);
         $received = [];
+        $attributeIds = [];
 
         foreach ($items as $item) {
             $attributeId = (int)$item->getAttributeId();
@@ -35,6 +37,13 @@ class PositionAttributeService
             }
 
             $received[$attributeId] = true;
+            $attributeIds[] = $attributeId;
+        }
+
+        $attributes = $this->getAttributes($attributeIds);
+
+        foreach ($items as $item) {
+            $attributeId = (int)$item->getAttributeId();
 
             if (isset($existing[$attributeId])) {
                 $existing[$attributeId]->setDisplayOrder((int)$item->getDisplayOrder());
@@ -44,12 +53,14 @@ class PositionAttributeService
                 continue;
             }
 
-            $attribute = $this->attributeDefinitionResolver->get($attributeId);
+            if (!isset($attributes[$attributeId])) {
+                throw new BadRequestHttpException('Attribute not found');
+            }
 
             $positionAttribute = $this->positionAttributeFactory->create(
                 $position,
-                $attribute,
-                (int)$item->getDisplayOrder(),
+                $attributes[$attributeId],
+                $item->getDisplayOrder(),
             );
 
             $position->addPositionAttribute($positionAttribute);
@@ -74,6 +85,27 @@ class PositionAttributeService
             $target->addPositionAttribute($positionAttribute);
             $this->positionAttributeManager->save($positionAttribute);
         }
+    }
+
+    /**
+     * @param int[] $ids
+     * @return array<int, AttributeDefinition>
+     */
+    private function getAttributes(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $attributes = [];
+
+        foreach ($this->attributeDefinitionRepository->findBy(['id' => $ids]) as $attribute) {
+            if ($attribute->getId() !== null) {
+                $attributes[$attribute->getId()] = $attribute;
+            }
+        }
+
+        return $attributes;
     }
 
     /**
