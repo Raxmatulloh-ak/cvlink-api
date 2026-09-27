@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SearchAction extends AbstractController
 {
-    private const RESULT_LIMIT = 30;
+    private const int RESULT_LIMIT = 30;
 
     public function __construct(
         private readonly PositionRepository $positionRepository,

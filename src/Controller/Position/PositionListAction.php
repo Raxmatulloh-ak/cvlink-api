@@ -7,6 +7,7 @@ namespace App\Controller\Position;
 use App\Component\Position\PositionEligibilityService;
 use App\Entity\Position;
 use App\Entity\User;
+use App\Repository\PositionAttributeRepository;
 use App\Repository\PositionRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,10 +15,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 class PositionListAction extends AbstractController
 {
-    private const PAGE_SIZE = 30;
+    private const int PAGE_SIZE = 30;
 
     public function __construct(
         private readonly PositionRepository $positionRepository,
+        private readonly PositionAttributeRepository $positionAttributeRepository,
         private readonly PositionEligibilityService $positionEligibilityService,
     ) {
     }
@@ -28,7 +30,8 @@ class PositionListAction extends AbstractController
         $isRecruiter = $this->isGranted('ROLE_RECRUITER');
         $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        $positions = $this->positionRepository->findForBrowse(!$user instanceof User);
+        $tag = trim((string)$request->query->get('tag', ''));
+        $positions = $this->positionRepository->findForBrowse(!$user instanceof User, $tag);
 
         if ($user instanceof User && !$isRecruiter && !$isAdmin) {
             $positions = $this->positionEligibilityService->filterAllowedPositions($positions, $user);
@@ -38,10 +41,14 @@ class PositionListAction extends AbstractController
         $offset = ($page - 1) * self::PAGE_SIZE;
         $hasMore = count($positions) > $offset + self::PAGE_SIZE;
         $positions = array_slice($positions, $offset, self::PAGE_SIZE);
+        $attributeCounts = $this->positionAttributeRepository->countForPositions($positions);
 
         return new JsonResponse([
             'items' => array_map(
-                fn (Position $position): array => $this->positionItem($position),
+                fn(Position $position): array => $this->positionItem(
+                    $position,
+                    $attributeCounts[$position->getId()] ?? 0,
+                ),
                 $positions,
             ),
             'page' => $page,
@@ -49,7 +56,7 @@ class PositionListAction extends AbstractController
         ]);
     }
 
-    private function positionItem(Position $position): array
+    private function positionItem(Position $position, int $attributeCount): array
     {
         return [
             'id' => $position->getId(),
@@ -57,6 +64,7 @@ class PositionListAction extends AbstractController
             'description' => $position->getDescription(),
             'accessType' => $position->getAccessType()?->value,
             'maxProjects' => $position->getMaxProjects(),
+            'attributeCount' => $attributeCount,
             'version' => $position->getVersion(),
             'createdAt' => $position->getCreatedAt()?->format(DATE_ATOM),
             'updatedAt' => $position->getUpdatedAt()?->format(DATE_ATOM),
