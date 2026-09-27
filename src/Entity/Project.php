@@ -5,6 +5,16 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use App\Component\Project\Dto\ProjectUpdateDto;
+use App\Component\Project\Dto\ProjectWriteDto;
+use App\Controller\Project\ProjectCreateAction;
+use App\Controller\Project\ProjectDeleteAction;
+use App\Controller\Project\ProjectUpdateAction;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
 use App\Entity\Interfaces\UpdatedAtSettableInterface;
 use App\Entity\Traits\CreatedAtAccessorsTrait;
@@ -14,9 +24,46 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            security: "is_granted('ROLE_ADMIN')",
+        ),
+        new Get(
+            security: "is_granted('ROLE_ADMIN') || (is_granted('ROLE_CANDIDATE') && object.getCandidate() === user)",
+        ),
+        new Post(
+            controller: ProjectCreateAction::class,
+            security: "is_granted('ROLE_CANDIDATE') || is_granted('ROLE_ADMIN')",
+            input: ProjectWriteDto::class,
+            write: false,
+        ),
+        new Post(
+            uriTemplate: '/users/{id}/projects',
+            controller: ProjectCreateAction::class,
+            security: "is_granted('ROLE_ADMIN')",
+            input: ProjectWriteDto::class,
+            read: false,
+            write: false,
+            name: 'user_project_create',
+        ),
+        new Patch(
+            controller: ProjectUpdateAction::class,
+            security: "is_granted('ROLE_ADMIN') || (is_granted('ROLE_CANDIDATE') && object.getCandidate() === user)",
+            input: ProjectUpdateDto::class,
+            write: false,
+        ),
+        new Delete(
+            controller: ProjectDeleteAction::class,
+            security: "is_granted('ROLE_ADMIN') || (is_granted('ROLE_CANDIDATE') && object.getCandidate() === user)",
+            write: false,
+        ),
+    ],
+    normalizationContext: ['groups' => ['project:read']],
+)]
 class Project implements CreatedAtSettableInterface, UpdatedAtSettableInterface
 {
     use CreatedAtAccessorsTrait, UpdatedAtAccessorsTrait;
@@ -24,6 +71,7 @@ class Project implements CreatedAtSettableInterface, UpdatedAtSettableInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['project:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'userProjects')]
@@ -31,19 +79,24 @@ class Project implements CreatedAtSettableInterface, UpdatedAtSettableInterface
     private ?User $candidate = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['project:read'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Groups(['project:read'])]
     private ?\DateTimeImmutable $startDate = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[Groups(['project:read'])]
     private ?\DateTimeImmutable $endDate = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['project:read'])]
     private ?string $description = null;
 
     #[ORM\Version]
     #[ORM\Column(type: Types::INTEGER)]
+    #[Groups(['project:read'])]
     private int $version = 1;
 
     #[ORM\Column]
@@ -64,6 +117,7 @@ class Project implements CreatedAtSettableInterface, UpdatedAtSettableInterface
         cascade: ['persist'],
         orphanRemoval: true
     )]
+    #[Groups(['project:read'])]
     private Collection $projectTags;
 
     public function __construct()

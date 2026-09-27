@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
+use App\Entity\Project;
 use App\Entity\ProjectTag;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -14,6 +17,26 @@ class ProjectTagRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, ProjectTag::class);
+    }
+
+    /**
+     * @param Project[] $projects
+     * @return ProjectTag[]
+     */
+    public function findForProjects(array $projects): array
+    {
+        if ($projects === []) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('projectTag')
+            ->addSelect('tag')
+            ->join('projectTag.tag', 'tag')
+            ->andWhere('projectTag.project IN (:projects)')
+            ->setParameter('projects', $projects)
+            ->orderBy('projectTag.id', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
 //    /**
