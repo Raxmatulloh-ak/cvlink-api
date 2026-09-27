@@ -10,11 +10,16 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Component\Discussion\Dto\DiscussionWriteDto;
 use App\Component\Position\Dto\PositionUpdateDto;
 use App\Component\Position\Dto\PositionWriteDto;
+use App\Controller\Discussion\DiscussionCreateAction;
+use App\Controller\Discussion\DiscussionListAction;
 use App\Controller\Position\PositionCreateAction;
 use App\Controller\Position\PositionDeleteAction;
 use App\Controller\Position\PositionDuplicateAction;
+use App\Controller\Position\PositionListAction;
+use App\Controller\Position\PositionReadAction;
 use App\Controller\Position\PositionUpdateAction;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
 use App\Entity\Interfaces\UpdatedAtSettableInterface;
@@ -32,8 +37,34 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: PositionRepository::class)]
 #[ApiResource(
     operations: [
-        new GetCollection(),
-        new Get(),
+        new GetCollection(
+            controller: PositionListAction::class,
+            output: false,
+            read: false,
+        ),
+        new Get(
+            controller: PositionReadAction::class,
+            output: false,
+            read: false,
+        ),
+        new Get(
+            uriTemplate: '/positions/{id}/discussions',
+            controller: DiscussionListAction::class,
+            security: "is_granted('ROLE_CANDIDATE') || is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
+            output: false,
+            read: false,
+            name: 'position_discussion_list',
+        ),
+        new Post(
+            uriTemplate: '/positions/{id}/discussions',
+            controller: DiscussionCreateAction::class,
+            security: "is_granted('ROLE_CANDIDATE') || is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
+            input: DiscussionWriteDto::class,
+            output: false,
+            read: false,
+            write: false,
+            name: 'position_discussion_create',
+        ),
         new Post(
             controller: PositionCreateAction::class,
             security: "is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
