@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class CvListAction extends AbstractController
 {
-    private const PAGE_SIZE = 30;
+    private const int PAGE_SIZE = 30;
 
     public function __construct(
         private readonly CVRepository $cvRepository,

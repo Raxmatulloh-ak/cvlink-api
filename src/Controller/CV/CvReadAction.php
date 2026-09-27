@@ -7,6 +7,7 @@ namespace App\Controller\CV;
 use App\Component\CV\CvAccessService;
 use App\Component\CV\CvRenderer;
 use App\Entity\User;
+use App\Repository\CvLikeRepository;
 use App\Repository\CVRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,6 +19,7 @@ class CvReadAction extends AbstractController
         private readonly CVRepository $cvRepository,
         private readonly CvAccessService $cvAccessService,
         private readonly CvRenderer $cvRenderer,
+        private readonly CvLikeRepository $cvLikeRepository,
     ) {
     }
 
@@ -30,6 +32,11 @@ class CvReadAction extends AbstractController
             throw new NotFoundHttpException('CV not found');
         }
 
-        return new JsonResponse($this->cvRenderer->render($cv));
+        $data = $this->cvRenderer->render($cv);
+
+        $data['likes'] = $this->cvLikeRepository->countForCv($cv);
+        $data['liked'] = $this->cvLikeRepository->isLikedBy($cv, $user);
+
+        return new JsonResponse($data);
     }
 }

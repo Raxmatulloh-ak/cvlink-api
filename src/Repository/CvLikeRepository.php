@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\CV;
 use App\Entity\CvLike;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,6 +18,16 @@ class CvLikeRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CvLike::class);
+    }
+
+    public function countForCv(CV $cv): int
+    {
+        return $this->count(['cv' => $cv]);
+    }
+
+    public function isLikedBy(CV $cv, User $viewer): bool
+    {
+        return $this->findOneBy(['cv' => $cv, 'recruiter' => $viewer]) !== null;
     }
 
     /**

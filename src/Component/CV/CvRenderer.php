@@ -6,10 +6,8 @@ namespace App\Component\CV;
 
 use App\Component\UserAttributeValue\UserAttributeValueService;
 use App\Entity\CV;
-use App\Entity\User;
 use App\Entity\UserAttributeValue;
 use App\Enum\AttributeValueType;
-use App\Repository\CvLikeRepository;
 use App\Repository\PositionAttributeRepository;
 use App\Repository\PositionTagRepository;
 use App\Repository\ProjectRepository;
@@ -23,13 +21,12 @@ class CvRenderer
         private readonly PositionTagRepository $positionTagRepository,
         private readonly ProjectRepository $projectRepository,
         private readonly ProjectTagRepository $projectTagRepository,
-        private readonly CvLikeRepository $cvLikeRepository,
         private readonly UserAttributeValueRepository $userAttributeValueRepository,
         private readonly UserAttributeValueService $userAttributeValueService,
     ) {
     }
 
-    public function render(CV $cv, ?User $viewer = null): array
+    public function render(CV $cv): array
     {
         $candidate = $cv->getCandidate();
         $position = $cv->getPosition();
@@ -75,8 +72,6 @@ class CvRenderer
         }
 
         $projects = $this->getProjects($cv);
-        $likes = $this->cvLikeRepository->countForCv($cv);
-        $liked = $viewer !== null && $this->cvLikeRepository->isLikedBy($cv, $viewer);
 
         return [
             'id' => $cv->getId(),

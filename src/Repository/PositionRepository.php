@@ -23,7 +23,7 @@ class PositionRepository extends ServiceEntityRepository
     /**
      * @return Position[]
      */
-    public function findForBrowse(bool $publicOnly): array
+    public function findForBrowse(bool $publicOnly, ?string $tag = null): array
     {
         $queryBuilder = $this->createQueryBuilder('position')
             ->orderBy('COALESCE(position.updatedAt, position.createdAt)', 'DESC')
@@ -33,6 +33,14 @@ class PositionRepository extends ServiceEntityRepository
             $queryBuilder
                 ->andWhere('position.accessType = :accessType')
                 ->setParameter('accessType', PositionAccessType::PUBLIC);
+        }
+
+        if ($tag !== null && $tag !== '') {
+            $queryBuilder
+                ->join('position.positionTags', 'positionTag')
+                ->join('positionTag.tag', 'tag')
+                ->andWhere('LOWER(tag.name) = :tag')
+                ->setParameter('tag', strtolower($tag));
         }
 
         return $queryBuilder->getQuery()->getResult();
@@ -129,7 +137,7 @@ class PositionRepository extends ServiceEntityRepository
             $sql .= ' AND access_type = :accessType';
         }
 
-        $sql .= ' ORDER BY id DESC LIMIT '.$limit;
+        $sql .= ' ORDER BY id DESC LIMIT ' . $limit;
         $parameters = ['query' => $query];
 
         if ($publicOnly) {
@@ -160,8 +168,7 @@ class PositionRepository extends ServiceEntityRepository
 
         $order = array_flip($ids);
 
-        usort($positions, static fn (Position $left, Position $right): int =>
-            ($order[$left->getId()] ?? PHP_INT_MAX) <=> ($order[$right->getId()] ?? PHP_INT_MAX)
+        usort($positions, static fn(Position $left, Position $right): int => ($order[$left->getId()] ?? PHP_INT_MAX) <=> ($order[$right->getId()] ?? PHP_INT_MAX)
         );
 
         return $positions;
@@ -169,7 +176,7 @@ class PositionRepository extends ServiceEntityRepository
 
     public function countAll(): int
     {
-        return (int) $this->createQueryBuilder('position')
+        return (int)$this->createQueryBuilder('position')
             ->select('COUNT(position.id)')
             ->getQuery()
             ->getSingleScalarResult();

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\User;
@@ -21,6 +23,14 @@ class UserRepository extends ServiceEntityRepository
         return $this->findOneBy([
             'email' => $email,
         ]);
+    }
+
+    public function countByRole(string $role): int
+    {
+        return (int) $this->getEntityManager()->getConnection()->fetchOne(
+            'SELECT COUNT(id) FROM "user" WHERE roles::jsonb @> CAST(:roles AS jsonb)',
+            ['roles' => json_encode([$role])],
+        );
     }
 
 //    /**

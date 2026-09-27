@@ -35,6 +35,36 @@ class PositionAttributeRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @param Position[] $positions
+     * @return array<int, int>
+     */
+    public function countForPositions(array $positions): array
+    {
+        if ($positions === []) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('positionAttribute')
+            ->select(
+                'IDENTITY(positionAttribute.position) AS positionId',
+                'COUNT(positionAttribute.id) AS attributeCount',
+            )
+            ->andWhere('positionAttribute.position IN (:positions)')
+            ->setParameter('positions', $positions)
+            ->groupBy('positionAttribute.position')
+            ->getQuery()
+            ->getArrayResult();
+
+        $counts = [];
+
+        foreach ($rows as $row) {
+            $counts[(int) $row['positionId']] = (int) $row['attributeCount'];
+        }
+
+        return $counts;
+    }
+
 //    /**
 //     * @return PositionAttribute[] Returns an array of PositionAttribute objects
 //     */
