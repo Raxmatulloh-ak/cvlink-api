@@ -5,6 +5,19 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use App\Component\CV\Dto\CvCreateDto;
+use App\Component\CV\Dto\CvPublishDto;
+use App\Controller\CV\CvCreateAction;
+use App\Controller\CV\CvLikeCreateAction;
+use App\Controller\CV\CvLikeDeleteAction;
+use App\Controller\CV\CvListAction;
+use App\Controller\CV\CvDeleteAction;
+use App\Controller\CV\CvPublishAction;
+use App\Controller\CV\CvReadAction;
 use App\Entity\Interfaces\CreatedAtSettableInterface;
 use App\Entity\Interfaces\UpdatedAtSettableInterface;
 use App\Entity\Traits\CreatedAtAccessorsTrait;
@@ -17,7 +30,67 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CVRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            uriTemplate: '/cvs',
+            controller: CvListAction::class,
+            output: false,
+            read: false,
+        ),
+        new Get(
+            uriTemplate: '/cvs/{id}',
+            controller: CvReadAction::class,
+            output: false,
+            read: false,
+        ),
+        new Post(
+            uriTemplate: '/cvs',
+            controller: CvCreateAction::class,
+            security: "is_granted('ROLE_CANDIDATE') || is_granted('ROLE_ADMIN')",
+            input: CvCreateDto::class,
+            output: false,
+            write: false,
+        ),
+        new Post(
+            uriTemplate: '/cvs/{id}/like',
+            controller: CvLikeCreateAction::class,
+            security: "is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
+            input: false,
+            output: false,
+            read: false,
+            write: false,
+            name: 'cv_like_create',
+        ),
+        new Delete(
+            uriTemplate: '/cvs/{id}/like',
+            controller: CvLikeDeleteAction::class,
+            security: "is_granted('ROLE_RECRUITER') || is_granted('ROLE_ADMIN')",
+            output: false,
+            read: false,
+            write: false,
+            name: 'cv_like_delete',
+        ),
+        new Post(
+            uriTemplate: '/cvs/{id}/publish',
+            controller: CvPublishAction::class,
+            security: "is_granted('ROLE_CANDIDATE') || is_granted('ROLE_ADMIN')",
+            input: CvPublishDto::class,
+            output: false,
+            read: false,
+            write: false,
+            name: 'cv_publish',
+        ),
+        new Delete(
+            uriTemplate: '/cvs/{id}',
+            controller: CvDeleteAction::class,
+            security: "is_granted('ROLE_CANDIDATE') || is_granted('ROLE_ADMIN')",
+            output: false,
+            read: false,
+            write: false,
+        ),
+    ],
+)]
 #[ORM\UniqueConstraint(name: 'uniq_candidate_cv', columns: ['candidate_id', 'position_id'])]
 class CV implements CreatedAtSettableInterface, UpdatedAtSettableInterface
 {

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
+use App\Entity\CV;
 use App\Entity\CvLike;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -14,6 +17,33 @@ class CvLikeRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CvLike::class);
+    }
+
+    /**
+     * @param CV[] $cvs
+     * @return array<int, int>
+     */
+    public function countForCvs(array $cvs): array
+    {
+        if ($cvs === []) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('like')
+            ->select('IDENTITY(like.cv) AS cvId', 'COUNT(like.id) AS likes')
+            ->andWhere('like.cv IN (:cvs)')
+            ->setParameter('cvs', $cvs)
+            ->groupBy('like.cv')
+            ->getQuery()
+            ->getArrayResult();
+
+        $counts = [];
+
+        foreach ($rows as $row) {
+            $counts[(int) $row['cvId']] = (int) $row['likes'];
+        }
+
+        return $counts;
     }
 
 //    /**
