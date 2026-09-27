@@ -44,6 +44,10 @@ security:
     # Note: Only the *first* matching rule is applied
     access_control:
         - { path: ^/api/docs, roles: PUBLIC_ACCESS }
+        - { path: ^/api/dashboard$, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/search$, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/positions$, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/positions/\d+$, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
