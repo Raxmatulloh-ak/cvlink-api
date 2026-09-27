@@ -23,11 +23,11 @@ class Tag
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['tag:read', 'position:read'])]
+    #[Groups(['tag:read', 'position:read', 'project:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, unique: true)]
-    #[Groups(['tag:read', 'position:read', 'tag:write'])]
+    #[Groups(['tag:read', 'position:read', 'tag:write', 'project:read'])]
     private ?string $name = null;
 
     public function getId(): ?int

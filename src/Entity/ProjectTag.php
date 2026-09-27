@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ProjectTagRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: ProjectTagRepository::class)]
 #[ORM\UniqueConstraint(name: 'uniq_tag_project', columns: ['project_id', 'tag_id'])]
-#[ApiResource]
 class ProjectTag
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['project:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'projectTags')]
@@ -24,6 +24,7 @@ class ProjectTag
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[Groups(['project:read'])]
     private ?Tag $tag = null;
 
     public function getId(): ?int

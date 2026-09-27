@@ -21,6 +21,23 @@ class TagRepository extends ServiceEntityRepository
         return $this->findOneBy(['name' => $name]);
     }
 
+    /**
+     * @param string[] $names
+     * @return Tag[]
+     */
+    public function findByNames(array $names): array
+    {
+        if ($names === []) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('tag')
+            ->andWhere('tag.name IN (:names)')
+            ->setParameter('names', $names)
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return Tag[] Returns an array of Tag objects
 //     */
