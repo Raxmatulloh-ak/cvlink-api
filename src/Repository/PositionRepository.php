@@ -26,7 +26,8 @@ class PositionRepository extends ServiceEntityRepository
     public function findForBrowse(bool $publicOnly, ?string $tag = null): array
     {
         $queryBuilder = $this->createQueryBuilder('position')
-            ->orderBy('COALESCE(position.updatedAt, position.createdAt)', 'DESC')
+            ->addSelect('COALESCE(position.updatedAt, position.createdAt) AS HIDDEN lastChangedAt')
+            ->orderBy('lastChangedAt', 'DESC')
             ->addOrderBy('position.id', 'DESC');
 
         if ($publicOnly) {
@@ -65,7 +66,8 @@ class PositionRepository extends ServiceEntityRepository
     public function findLatestForDashboard(bool $publicOnly, int $limit = 50): array
     {
         $queryBuilder = $this->createQueryBuilder('position')
-            ->orderBy('COALESCE(position.updatedAt, position.createdAt)', 'DESC')
+            ->addSelect('COALESCE(position.updatedAt, position.createdAt) AS HIDDEN lastChangedAt')
+            ->orderBy('lastChangedAt', 'DESC')
             ->addOrderBy('position.id', 'DESC')
             ->setMaxResults($limit);
 
