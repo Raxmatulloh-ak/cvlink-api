@@ -137,6 +137,9 @@ class DashboardAction extends AbstractController
             'id' => $position->getId(),
             'title' => $position->getTitle(),
             'description' => $position->getDescription(),
+            'accessType' => $position->getAccessType()?->value,
+            'attributeCount' => $position->getPositionAttributes()->count(),
+            'maxProjects' => $position->getMaxProjects(),
             'changedAt' => $changedAt?->format(DATE_ATOM),
         ];
     }
