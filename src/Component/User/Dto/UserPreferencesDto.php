@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace App\Component\User\Dto;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 use App\Enum\Theme;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -10,8 +11,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 class UserPreferencesDto
 {
     #[Assert\Length(min: 2, max: 15)]
+    #[Groups(['user:write'])]
     private ?string $locale = null;
 
+    #[Groups(['user:write'])]
     private ?Theme $theme = null;
 
     public function getLocale(): ?string
