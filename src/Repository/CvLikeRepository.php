@@ -40,18 +40,18 @@ class CvLikeRepository extends ServiceEntityRepository
             return [];
         }
 
-        $rows = $this->createQueryBuilder('like')
-            ->select('IDENTITY(like.cv) AS cvId', 'COUNT(like.id) AS likes')
-            ->andWhere('like.cv IN (:cvs)')
+        $rows = $this->createQueryBuilder('cvLike')
+            ->select('IDENTITY(cvLike.cv) AS cvId', 'COUNT(cvLike.id) AS likes')
+            ->andWhere('cvLike.cv IN (:cvs)')
             ->setParameter('cvs', $cvs)
-            ->groupBy('like.cv')
+            ->groupBy('cvLike.cv')
             ->getQuery()
             ->getArrayResult();
 
         $counts = [];
 
         foreach ($rows as $row) {
-            $counts[(int) $row['cvId']] = (int) $row['likes'];
+            $counts[(int)$row['cvId']] = (int)$row['likes'];
         }
 
         return $counts;

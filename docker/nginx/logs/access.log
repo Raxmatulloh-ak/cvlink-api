@@ -25,3 +25,6 @@
 192.168.64.1 - - [27/Sep/2026:12:02:47 +0000] "GET /api HTTP/1.1" 200 78428 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36" "-"
 192.168.64.1 - - [27/Sep/2026:12:05:44 +0000] "GET /api HTTP/1.1" 200 78550 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36" "-"
 192.168.64.1 - - [27/Sep/2026:23:35:30 +0000] "GET /favicon.ico HTTP/1.1" 404 223099 "http://localhost:8597/api" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36" "-"
+192.168.64.1 - - [28/Sep/2026:06:10:41 +0000] "GET /favicon.ico HTTP/1.1" 404 222354 "http://localhost:8597/api" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36" "-"
+192.168.64.1 - - [29/Sep/2026:16:35:55 +0000] "GET /bundles/apiplatform/swagger-ui/swagger-ui-bundle.js HTTP/1.1" 200 1526593 "http://localhost:8597/api" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36" "-"
+192.168.64.1 - - [29/Sep/2026:16:35:56 +0000] "GET /favicon.ico HTTP/1.1" 404 222364 "http://localhost:8597/api" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36" "-"

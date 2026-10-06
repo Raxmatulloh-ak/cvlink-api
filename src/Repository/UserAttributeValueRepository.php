@@ -77,6 +77,29 @@ class UserAttributeValueRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return array<string, ?string>
+     */
+    public function findSalesforceValuesForOwner(User $owner): array
+    {
+        $values = $this->createQueryBuilder('value')
+            ->select('attribute.builtinKey AS builtinKey')
+            ->addSelect('value.textValue AS textValue')
+            ->join('value.attribute', 'attribute')
+            ->andWhere('value.owner = :owner')
+            ->andWhere('attribute.builtinKey IN (:keys)')
+            ->setParameter('owner', $owner)
+            ->setParameter('keys', [
+                'first_name',
+                'last_name',
+                'location',
+            ])
+            ->getQuery()
+            ->getArrayResult();
+
+        return array_column($values, 'textValue', 'builtinKey');
+    }
+
 //    /**
 //     * @return UserAttributeValue[] Returns an array of UserAttributeValue objects
 //     */

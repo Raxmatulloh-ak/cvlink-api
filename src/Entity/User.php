@@ -10,12 +10,16 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
+use App\Component\Salesforce\Dto\SalesforceCreateDto;
+use App\Component\User\Dto\GoogleAuthDto;
 use App\Component\User\Dto\TokenDto;
 use App\Component\User\Dto\UserManageDto;
 use App\Component\User\Dto\UserPreferencesDto;
+use App\Controller\Salesforce\SalesforceCreateAction;
 use App\Controller\User\UserAboutMeAction;
 use App\Controller\User\UserAuthAction;
 use App\Controller\User\UserCreateAction;
+use App\Controller\User\UserGoogleAuthAction;
 use App\Controller\User\UserManageAction;
 use App\Controller\User\UserPreferencesAction;
 use App\Controller\User\UserProfileAction;
@@ -35,9 +39,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: '`user`')]
 #[ApiResource(
     operations: [
-        new GetCollection(
-            security: "is_granted('ROLE_ADMIN')",
-        ),
+        new GetCollection(),
         new Get(
             security: "is_granted('ROLE_ADMIN') || object === user",
         ),
@@ -88,6 +90,24 @@ use Symfony\Component\Validator\Constraints as Assert;
             output: false,
             read: false,
             name: 'user_public_profile',
+        ),
+        new Post(
+            uriTemplate: '/users/auth/google',
+            controller: UserGoogleAuthAction::class,
+            input: GoogleAuthDto::class,
+            output: TokenDto::class,
+            read: false,
+            write: false,
+            name: 'userGoogleAuth',
+        ),
+        new Post(
+            uriTemplate: '/users/{id}/salesforce',
+            controller: SalesforceCreateAction::class,
+            input: SalesforceCreateDto::class,
+            output: false,
+            read: false,
+            write: false,
+            name: 'user_salesforce_create',
         ),
         new Delete(
             security: "is_granted('ROLE_ADMIN') || object === user",

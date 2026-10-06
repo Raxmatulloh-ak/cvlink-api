@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Component\User\Dto;
 
 use App\Enum\UserStatus;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class UserManageDto
@@ -19,8 +21,10 @@ class UserManageDto
             'ROLE_ADMIN',
         ]),
     ])]
+    #[Groups(['user:write'])]
     private ?array $roles = null;
 
+    #[Groups(['user:write'])]
     private ?UserStatus $status = null;
 
     /**

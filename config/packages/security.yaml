@@ -28,6 +28,12 @@ security:
             methods:
                 - POST
 
+        user_google_auth:
+            pattern: ^/api/users/auth/google$
+            security: false
+            methods:
+                - POST
+
         main:
             pattern: ^/api
             stateless: true

@@ -34,4 +34,12 @@ class UserFactory
             ->setLocale($locale)
             ->setTheme($theme);
     }
+
+    public function createSocial(string $email): User
+    {
+        return new User()
+            ->setEmail($email)
+            ->setRoles(['ROLE_CANDIDATE'])
+            ->setStatus(UserStatus::ACTIVE);
+    }
 }

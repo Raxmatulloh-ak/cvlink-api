@@ -49,6 +49,9 @@
             "migrations/.gitignore"
         ]
     },
+    "google/apiclient": {
+        "version": "v2.20.1"
+    },
     "lexik/jwt-authentication-bundle": {
         "version": "3.2",
         "recipe": {
